@@ -51,8 +51,10 @@ export default function DrawsPage() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>회차별 당첨번호 조회</h1>
-      <p className={styles.subtitle}>회차 번호나 추첨일로 검색하거나, 최신 회차부터 목록을 볼 수 있습니다.</p>
+      <section className={styles.hero}>
+        <h1 className={styles.title}>회차별 당첨번호 조회</h1>
+        <p className={styles.subtitle}>회차 번호나 추첨일로 검색하거나, 최신 회차부터 목록을 볼 수 있습니다.</p>
+      </section>
 
       <form className={styles.searchForm} onSubmit={handleSearch}>
         <input
@@ -81,12 +83,15 @@ export default function DrawsPage() {
                 <span className={styles.drawNo}>{draw.drawNo}회</span>
                 <span className={styles.drawDate}>{draw.drawDate}</span>
               </div>
-              {draw.numbers.map((n) => (
-                <span key={n} className={styles.ball}>
-                  {n}
-                </span>
-              ))}
-              <span className={`${styles.ball} ${styles.bonusBall}`}>{draw.bonusNum}</span>
+              <div className={styles.balls}>
+                {draw.numbers.map((n) => (
+                  <span key={n} className={styles.ball}>
+                    {n}
+                  </span>
+                ))}
+                <span className={styles.plus}>+</span>
+                <span className={`${styles.ball} ${styles.bonusBall}`}>{draw.bonusNum}</span>
+              </div>
             </div>
           ))}
         </div>

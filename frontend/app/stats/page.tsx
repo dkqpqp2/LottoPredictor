@@ -18,16 +18,18 @@ export default function StatsPage() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>번호별 출현 통계</h1>
-      <p className={styles.subtitle}>역대 회차에서 각 번호가 나온 횟수와 비율입니다.</p>
+      <section className={styles.hero}>
+        <h1 className={styles.title}>번호별 출현 통계</h1>
+        <p className={styles.subtitle}>역대 회차에서 각 번호가 나온 횟수와 비율입니다.</p>
+      </section>
 
       {error && <p className={styles.error}>{error}</p>}
 
       {stats && (
-        <div className={styles.list}>
+        <div className={styles.card}>
           {stats.map((stat) => (
             <div key={stat.number} className={styles.row}>
-              <span className={styles.number}>{stat.number}</span>
+              <span className={styles.numberBadge}>{stat.number}</span>
               <span className={styles.barTrack}>
                 <span
                   className={styles.barFill}

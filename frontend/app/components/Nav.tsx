@@ -17,6 +17,7 @@ export default function Nav() {
   return (
     <nav className={styles.nav}>
       <Link href="/" className={styles.brand}>
+        <span className={styles.brandDot} />
         로또 번호 통계
       </Link>
       {LINKS.map((link) => (

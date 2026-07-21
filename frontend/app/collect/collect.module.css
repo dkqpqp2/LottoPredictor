@@ -1,46 +1,66 @@
 .page {
   max-width: 480px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: 3rem 1.5rem 4rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.75rem;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  text-align: center;
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
-  color: #666;
-  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
 .form {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.65rem;
   padding: 1.25rem;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .form input {
   flex: 1;
-  padding: 0.45rem 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 0.9rem;
 }
 
 .form button {
-  padding: 0.5rem 1.2rem;
+  padding: 0.55rem 1.2rem;
   border: none;
-  border-radius: 8px;
-  background: #171717;
-  color: #fff;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font-weight: 700;
+  font-size: 0.85rem;
   cursor: pointer;
   white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+
+.form button:hover:not(:disabled) {
+  background: var(--accent-hover);
 }
 
 .form button:disabled {
@@ -49,38 +69,64 @@
 }
 
 .error {
-  color: #c0392b;
+  color: var(--danger);
   font-size: 0.9rem;
+  text-align: center;
 }
 
 .resultBox {
-  padding: 1.25rem;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  font-size: 0.9rem;
+  gap: 1rem;
+}
+
+.resultStat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.resultCount {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.resultLabel {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.syncedList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.syncedBadge {
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.skippedList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--surface-border);
 }
 
 .skippedItem {
-  color: #c0392b;
-}
-
-@media (prefers-color-scheme: dark) {
-  .form,
-  .resultBox {
-    border-color: #333;
-  }
-
-  .form input {
-    border-color: #444;
-    background: #111;
-    color: #ededed;
-  }
-
-  .form button {
-    background: #ededed;
-    color: #111;
-  }
+  color: var(--danger);
+  font-size: 0.8rem;
 }

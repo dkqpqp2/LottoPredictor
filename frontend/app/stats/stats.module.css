@@ -1,65 +1,86 @@
 .page {
   max-width: 640px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: 3rem 1.5rem 4rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  text-align: center;
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.95rem;
 }
 
 .error {
-  color: #c0392b;
+  color: var(--danger);
   font-size: 0.9rem;
+  text-align: center;
 }
 
-.list {
+.card {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.55rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .row {
   display: grid;
-  grid-template-columns: 2.5rem 1fr 3.5rem;
+  grid-template-columns: 2rem 1fr 3.2rem;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 0.85rem;
+  gap: 0.85rem;
 }
 
-.number {
+.numberBadge {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
   font-weight: 700;
-  text-align: right;
+  background: var(--surface-hover);
+  color: var(--foreground);
 }
 
 .barTrack {
-  background: #eee;
-  border-radius: 4px;
-  height: 0.9rem;
+  background: var(--surface-hover);
+  border-radius: 999px;
+  height: 0.6rem;
   overflow: hidden;
 }
 
 .barFill {
-  background: #f0a500;
+  display: block;
+  background: var(--accent);
   height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
 }
 
 .percentage {
   text-align: right;
-  color: #666;
-}
-
-@media (prefers-color-scheme: dark) {
-  .barTrack {
-    background: #222;
-  }
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }

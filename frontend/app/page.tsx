@@ -26,46 +26,45 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>통계 기반 추천 번호</h1>
-      <p className={styles.subtitle}>
-        역대 로또 6/45 당첨번호의 출현 빈도를 가중치로 삼아 번호를 생성합니다. 실제 당첨을 예측하는 것은
-        아니며, 재미로 참고해 주세요.
-      </p>
+      <section className={styles.hero}>
+        <h1 className={styles.title}>통계 기반 추천 번호</h1>
+        <p className={styles.subtitle}>
+          역대 로또 6/45 당첨번호의 출현 빈도를 가중치로 삼아 번호를 생성합니다.
+          <br />
+          실제 당첨을 예측하는 것은 아니며, 재미로 참고해 주세요.
+        </p>
+      </section>
 
-      <div className={styles.controls}>
-        <div className={styles.modeGroup}>
-          <label className={styles.modeOption}>
+      <div className={styles.card}>
+        <div className={styles.controlsRow}>
+          <div className={styles.segmented}>
+            <button
+              type="button"
+              className={`${styles.segment} ${mode === "weighted" ? styles.segmentActive : ""}`}
+              onClick={() => setMode("weighted")}
+            >
+              가중치 기반
+            </button>
+            <button
+              type="button"
+              className={`${styles.segment} ${mode === "random" ? styles.segmentActive : ""}`}
+              onClick={() => setMode("random")}
+            >
+              완전 랜덤
+            </button>
+          </div>
+
+          <label className={styles.setsField}>
+            세트 수
             <input
-              type="radio"
-              name="mode"
-              value="weighted"
-              checked={mode === "weighted"}
-              onChange={() => setMode("weighted")}
+              type="number"
+              min={1}
+              max={10}
+              value={sets}
+              onChange={(e) => setSets(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
             />
-            가중치 기반
-          </label>
-          <label className={styles.modeOption}>
-            <input
-              type="radio"
-              name="mode"
-              value="random"
-              checked={mode === "random"}
-              onChange={() => setMode("random")}
-            />
-            완전 랜덤
           </label>
         </div>
-
-        <label className={styles.setsField}>
-          세트 수
-          <input
-            type="number"
-            min={1}
-            max={10}
-            value={sets}
-            onChange={(e) => setSets(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
-          />
-        </label>
 
         <button className={styles.generateButton} onClick={handleGenerate} disabled={loading}>
           {loading ? "생성 중..." : "번호 생성"}
@@ -77,17 +76,18 @@ export default function Home() {
       {result && (
         <div className={styles.results}>
           {result.mode !== mode && (
-            <p className={styles.subtitle}>
-              아직 저장된 회차 데이터가 없어 완전 랜덤 모드로 생성되었습니다.
-            </p>
+            <p className={styles.notice}>아직 저장된 회차 데이터가 없어 완전 랜덤 모드로 생성되었습니다.</p>
           )}
           {result.results.map((set, i) => (
-            <div key={i} className={styles.resultRow}>
-              {set.map((n) => (
-                <span key={n} className={styles.ball}>
-                  {n}
-                </span>
-              ))}
+            <div key={i} className={styles.resultCard}>
+              <span className={styles.resultIndex}>{i + 1}</span>
+              <div className={styles.resultBalls}>
+                {set.map((n) => (
+                  <span key={n} className={styles.ball}>
+                    {n}
+                  </span>
+                ))}
+              </div>
             </div>
           ))}
         </div>

@@ -27,11 +27,13 @@ export default function CollectPage() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>회차 수집</h1>
-      <p className={styles.subtitle}>
-        관리자 전용 기능입니다. 시크릿을 입력하고 실행하면 최신 회차까지 순서대로 수집합니다. 이미 최신
-        상태면 아무 일도 일어나지 않습니다.
-      </p>
+      <section className={styles.hero}>
+        <h1 className={styles.title}>회차 수집</h1>
+        <p className={styles.subtitle}>
+          관리자 전용 기능입니다. 시크릿을 입력하고 실행하면 최신 회차까지 순서대로 수집합니다. 이미 최신
+          상태면 아무 일도 일어나지 않습니다.
+        </p>
+      </section>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <input
@@ -50,14 +52,29 @@ export default function CollectPage() {
 
       {result && (
         <div className={styles.resultBox}>
-          <span>수집된 회차: {result.synced.length}개</span>
-          {result.synced.length > 0 && <span>{result.synced.join(", ")}</span>}
-          <span>건너뛴 회차: {result.skipped.length}개</span>
-          {result.skipped.map((s) => (
-            <span key={s.drawNo} className={styles.skippedItem}>
-              {s.drawNo}회: {s.reason}
-            </span>
-          ))}
+          <div className={styles.resultStat}>
+            <span className={styles.resultCount}>{result.synced.length}</span>
+            <span className={styles.resultLabel}>개 회차 수집됨</span>
+          </div>
+          {result.synced.length > 0 && (
+            <div className={styles.syncedList}>
+              {result.synced.map((n) => (
+                <span key={n} className={styles.syncedBadge}>
+                  {n}
+                </span>
+              ))}
+            </div>
+          )}
+          {result.skipped.length > 0 && (
+            <div className={styles.skippedList}>
+              <span className={styles.resultLabel}>건너뛴 회차 {result.skipped.length}개</span>
+              {result.skipped.map((s) => (
+                <span key={s.drawNo} className={styles.skippedItem}>
+                  {s.drawNo}회: {s.reason}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

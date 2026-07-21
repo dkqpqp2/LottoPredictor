@@ -1,52 +1,54 @@
 .nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
-  gap: 1.5rem;
+  gap: 0.25rem;
   align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e5e5e5;
+  padding: 0.9rem 1.5rem;
+  background: color-mix(in srgb, var(--background) 88%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--surface-border);
 }
 
 .brand {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   margin-right: auto;
-  color: inherit;
-  text-decoration: none;
+  color: var(--foreground);
+}
+
+.brandDot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--accent);
 }
 
 .link {
-  color: #666;
-  text-decoration: none;
-  font-size: 0.95rem;
-  padding: 0.25rem 0;
-  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  transition: color 0.15s ease, background-color 0.15s ease;
 }
 
 .link:hover {
-  color: #111;
+  color: var(--foreground);
+  background: var(--surface-hover);
 }
 
 .linkActive {
-  color: #111;
-  font-weight: 600;
-  border-bottom-color: #111;
+  color: var(--accent-foreground);
+  background: var(--accent);
 }
 
-@media (prefers-color-scheme: dark) {
-  .nav {
-    border-bottom-color: #333;
-  }
-
-  .link {
-    color: #aaa;
-  }
-
-  .link:hover {
-    color: #fff;
-  }
-
-  .linkActive {
-    color: #fff;
-    border-bottom-color: #fff;
-  }
+.linkActive:hover {
+  color: var(--accent-foreground);
+  background: var(--accent-hover);
 }
