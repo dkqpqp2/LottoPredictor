@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
-> **실행 기록:** 이 계획의 모든 태스크는 2026-07-21 세션에서 Claude가 직접 구현·테스트·커밋까지 완료했다 (사용자 요청: "모든 코드는 너가 직접 작성하면돼"). 아래 체크박스는 실제로 완료된 상태를 반영한다. Task 6(수동 검증)만 Supabase 프로젝트 생성이 필요해 보류 중이다.
+> **실행 기록:** 이 계획의 모든 태스크(Task 1~6)는 2026-07-21 세션에서 Claude가 직접 구현·테스트·검증·커밋까지 완료했다 (사용자 요청: "모든 코드는 너가 직접 작성하면돼"). Task 6 진행 중 동행복권 사이트가 리뉴얼되어 설계 문서가 가정한 크롤러 API가 죽어있는 것을 발견해 새 API로 재작성했다 — 자세한 내용은 Task 6 참고.
 
 **Goal:** `backend/`에 Spring Boot(Gradle) 프로젝트를 만들고, `docs/superpowers/specs/2026-07-21-lotto-predictor-java-backend-mvp-design.md`에서 정의한 REST API(`/api/generate`, `/api/stats`, `/api/draws`, `/api/crawl`)를 동작하는 상태로 구현한다.
 
@@ -156,31 +156,49 @@ mkdir -p backend && unzip -q backend.zip -d backend && rm backend.zip
 
 ---
 
-## Task 6: 수동 검증 (Supabase 연동 후) — 보류 중
+## Task 6: 수동 검증 (Supabase 연동 후) — 완료
 
-**이 태스크는 Supabase 프로젝트가 있어야 진행 가능하다.**
+- [x] **Step 1:** Supabase 프로젝트 생성(`LottoPredictor`, Asia-Pacific, Data API 자동노출 해제), SQL Editor에서 마이그레이션 실행.
+- [x] **Step 2:** Session pooler(IPv4 호환) + JDBC 연결 문자열/사용자명/비밀번호 확인.
+- [x] **Step 3:** `application-local.properties` 생성 (JDBC URL에 자격증명을 넣지 않고 `spring.datasource.username`/`password`로 분리 — 비밀번호에 `!@#` 같은 특수문자가 있으면 URL 쿼리 파라미터에선 percent-encoding이 필요해 오류가 나기 쉽다).
+- [x] **Step 4:** `SPRING_PROFILES_ACTIVE=local ./gradlew bootRun`으로 로컬 실행.
+- [x] **Step 5:** curl로 각 엔드포인트 확인 (아래는 실제로 마주친 이슈와 함께 정리):
 
-- [ ] **Step 1:** 사용자 수동 작업 — Supabase 프로젝트 생성, 대시보드 SQL Editor에서 `db/migrations/0001_create_lotto_draws.sql` 실행.
-- [ ] **Step 2:** 사용자 수동 작업 — Supabase 대시보드 Database 설정에서 JDBC 연결 문자열, 사용자명, 비밀번호 확인.
-- [ ] **Step 3:** `backend/src/main/resources/application-local.properties.example`을 `application-local.properties`로 복사하고 실제 값 채우기 (`lotto.crawl-secret`은 임의의 랜덤 문자열).
-- [ ] **Step 4:** `SPRING_PROFILES_ACTIVE=local ./gradlew bootRun`으로 로컬 실행.
-- [ ] **Step 5:** curl로 각 엔드포인트 확인:
+**진행 중 발견한 이슈 3가지 (전부 수정하고 커밋함, `fbf16d2`):**
+
+1. **`lotto_draws` 컬럼 타입 불일치** — 마이그레이션이 `smallint`로 만들었는데 JPA 엔티티는 `Integer`라 Hibernate `ddl-auto=validate`가 기동을 막았다. DB 컬럼을 `integer`로 ALTER해서 해결 (마이그레이션 파일도 `integer`로 수정).
+2. **`RestClient.Builder` 빈 없음** — Spring Boot 4.1.0 + `spring-boot-starter-webmvc` 조합에서는 `RestClient.Builder`가 자동 등록되지 않는다. `config/RestClientConfig.java`에 명시적 `@Bean`으로 등록.
+3. **동행복권 크롤러 API 자체가 죽어있었음** — 설계 문서가 가정한 `common.do?method=getLottoNumber&drwNo=N`이 302로 홈페이지로 리다이렉트되고, `gameResult.do`는 404. **사이트가 SPA로 전면 개편되면서 옛 API가 통째로 사라졌다.** 브라우저로 `/lt645/result` 페이지의 네트워크 요청을 직접 관찰해서 새 API를 찾음:
+
+   `GET https://www.dhlottery.co.kr/lt645/selectPstLt645InfoNew.do?srchDir=center&srchLtEpsd={회차}`
+
+   - 세션/쿠키 불필요 (순수 curl로도 동작 확인).
+   - 응답은 `{"data":{"list":[{...최대 10개 회차...}]}}` 형태 — 요청한 회차를 반드시 포함하지만 **목록의 첫 번째 항목이 아닐 수 있다** (예: `srchLtEpsd=1`은 1~10회차 목록을 반환하며 1은 마지막 항목). 그래서 파서는 `list[0]`을 쓰지 않고 `ltEpsd == 요청한 회차`인 항목을 찾아야 한다.
+   - 필드명도 전부 바뀌었다: `drwNo`→`ltEpsd`, `drwNoDate`(`yyyy-MM-dd`)→`ltRflYmd`(`yyyyMMdd`, 구분자 없음), `drwtNo1..6`→`tm1WnNo..tm6WnNo`, `bnusNo`→`bnsWnNo`.
+   - "아직 추첨 안 됨" 신호도 바뀌었다: 예전엔 `returnValue:"fail"`이었는데, 새 API는 그냥 `list`가 비어있거나(미래 회차) 요청한 회차가 목록에 없는 것으로 표현된다. `resultCode`/`resultMessage`는 관찰한 모든 케이스에서 `null`이었다.
+   - `lib/lotto/crawler.ts`(TS 버전, 이제 사용 안 함)와 Java 버전 둘 다 원래 옛 API를 가정하고 작성했었다. Java 쪽만 새 API에 맞게 다시 작성(`DhLotteryResponse`, `DhLotteryDrawEntry`, `DhLotteryResponseParser`, `DhLotteryClient`와 테스트).
+
+**실제 실행 결과:**
 
 ```bash
 curl "http://localhost:8080/api/generate?mode=random&sets=2"
-# Expected: {"mode":"random","results":[[...6개 숫자],[...6개 숫자]]}
+# {"mode":"random","results":[[...6개 숫자],[...6개 숫자]]}
 
 curl -i -X POST "http://localhost:8080/api/crawl"
-# Expected: 401 (Authorization 헤더 없음)
+# 401 (Authorization 헤더 없음 — 처음엔 400이 나오는 버그가 있었는데 @RequestHeader를 required=false로 고쳐서 401로 정정)
 
-curl -i -X POST -H "Authorization: Bearer <설정한 crawl-secret>" "http://localhost:8080/api/crawl"
-# Expected: 200, {"synced":[1,2,...],"skipped":[]} — 최초 실행이면 1회차부터 백필하므로 시간이 걸릴 수 있음
+curl -i -X POST -H "Authorization: Bearer <crawl-secret>" "http://localhost:8080/api/crawl"
+# 200, 1회 호출당 최대 200개 회차까지 동기화(maxAttempts 상한). 6번 반복 호출해서 1~1233회차 전체 백필 완료.
+# 이미 최신 상태에서 다시 호출하면 {"synced":[],"skipped":[]} — 멱등성 확인.
 
 curl "http://localhost:8080/api/stats"
-# Expected: 45개 번호에 대한 count/percentage 배열, 크롤링 이후라면 0이 아닌 값들
+# 실제 1233개 회차 기준 번호별 count/percentage (예: 1번 169회, 13.7%)
 
-curl "http://localhost:8080/api/draws?page=0&size=5"
-# Expected: 최신 회차 5개, draw_no 내림차순
+curl "http://localhost:8080/api/draws?drawNo=1"
+# [{"drawNo":1,"drawDate":"2002-12-07","numbers":[10,23,29,33,37,40],"bonusNum":16}]
+
+curl "http://localhost:8080/api/generate?mode=weighted&sets=2"
+# "mode":"weighted" — DB에 데이터가 있으니 더 이상 랜덤 폴백되지 않음
 ```
 
-- [ ] **Step 6:** 두 번째 `/api/crawl` 호출이 안전한지 확인 (새 회차가 없으면 `synced: []`로 아무 일도 안 일어나야 함 — 멱등성 검증).
+- [x] **Step 6:** 두 번째 이후 `/api/crawl` 호출이 안전한지 확인 (새 회차가 없으면 `synced: []`로 아무 일도 안 일어남) — 위에서 확인 완료.
