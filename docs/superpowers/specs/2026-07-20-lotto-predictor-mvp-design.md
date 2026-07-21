@@ -1,3 +1,5 @@
+> **[대체됨]** 이 문서의 아키텍처(Next.js 단일 프로젝트 + Vercel Cron)는 2026-07-21에 프론트/백엔드 분리형 아키텍처(Next.js + Java/Spring Boot)로 변경되었다. 최신 설계는 [2026-07-21-lotto-predictor-java-backend-mvp-design.md](2026-07-21-lotto-predictor-java-backend-mvp-design.md) 참고. "예측"에 대한 전제, 데이터 스키마의 기본 구조, 테스트 범위 등 아키텍처와 무관한 내용은 여전히 유효하다.
+
 # 로또 번호 예측 웹앱 — 1단계 MVP 설계
 
 ## 배경 및 목적
