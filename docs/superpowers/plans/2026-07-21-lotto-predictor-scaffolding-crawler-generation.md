@@ -1,3 +1,5 @@
+> **[중단됨]** 이 계획은 Next.js 단일 프로젝트(TypeScript API 라우트 + Supabase JS 클라이언트) 아키텍처를 전제로 작성되었으나, 백엔드를 Java/Spring Boot로 분리하기로 설계가 바뀌면서 더 이상 유효하지 않다. Task 1(프로젝트 스캐폴딩)만 실행됐고, 이후 저장소가 `frontend/`로 재구성되며 정리되었다. 최신 설계는 [2026-07-21-lotto-predictor-java-backend-mvp-design.md](../specs/2026-07-21-lotto-predictor-java-backend-mvp-design.md) 참고, 새 구현 계획은 `docs/superpowers/plans/`에 별도로 작성된다.
+
 # 로또 예측 웹앱 — 스캐폴딩 · Supabase 세팅 · 크롤러 · 번호생성 로직 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
