@@ -80,3 +80,32 @@ export async function triggerCrawl(secret: string): Promise<SyncResult> {
   }
   return res.json();
 }
+
+export interface WeeklyPickResult {
+  weekStart: string;
+  targetDrawNo: number;
+  numbers: number[];
+  resultAvailable: boolean;
+  matchCount: number | null;
+  bonusMatch: boolean | null;
+  rank: string | null;
+  actualNumbers: number[] | null;
+  actualBonus: number | null;
+  actualDrawDate: string | null;
+}
+
+export async function getWeeklyPick(): Promise<WeeklyPickResult> {
+  const res = await fetch(`${API_BASE_URL}/api/weekly-pick`);
+  if (!res.ok) {
+    throw new Error("이번 주 추천 번호를 불러오지 못했습니다.");
+  }
+  return res.json();
+}
+
+export async function getWeeklyPickHistory(limit = 5): Promise<WeeklyPickResult[]> {
+  const res = await fetch(`${API_BASE_URL}/api/weekly-pick/history?limit=${limit}`);
+  if (!res.ok) {
+    throw new Error("추천 이력을 불러오지 못했습니다.");
+  }
+  return res.json();
+}

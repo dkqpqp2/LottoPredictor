@@ -69,6 +69,111 @@
   flex-wrap: wrap;
 }
 
+.weeklyCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--accent-soft), var(--surface) 60%);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.weeklyHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.weeklyTitle {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.weeklyTarget {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.ballMatched {
+  box-shadow: 0 0 0 3px var(--accent);
+}
+
+.weeklyResult {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.weeklyPending {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.historyCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.historyRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.historyDraw {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  min-width: 3.2rem;
+}
+
+.historyBalls {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.miniBall {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+.miniBallMatched {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.historyResult {
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
 .controlsRow {
   display: flex;
   flex-wrap: wrap;

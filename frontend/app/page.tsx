@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
-import { generateNumbers, getDraws, type DrawResponse, type GenerateMode, type GenerateResult } from "../lib/api";
+import {
+  generateNumbers,
+  getDraws,
+  getWeeklyPick,
+  getWeeklyPickHistory,
+  type DrawResponse,
+  type GenerateMode,
+  type GenerateResult,
+  type WeeklyPickResult,
+} from "../lib/api";
 import { getBallColor } from "../lib/lottoBall";
 
 export default function Home() {
@@ -12,11 +21,19 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [latestDraw, setLatestDraw] = useState<DrawResponse | null>(null);
+  const [weeklyPick, setWeeklyPick] = useState<WeeklyPickResult | null>(null);
+  const [weeklyHistory, setWeeklyHistory] = useState<WeeklyPickResult[]>([]);
 
   useEffect(() => {
     getDraws({ page: 0, size: 1 })
       .then((draws) => setLatestDraw(draws[0] ?? null))
       .catch(() => setLatestDraw(null));
+    getWeeklyPick()
+      .then(setWeeklyPick)
+      .catch(() => setWeeklyPick(null));
+    getWeeklyPickHistory(5)
+      .then(setWeeklyHistory)
+      .catch(() => setWeeklyHistory([]));
   }, []);
 
   async function handleGenerate() {
@@ -58,6 +75,63 @@ export default function Home() {
             <span className={styles.ball} style={{ backgroundColor: getBallColor(latestDraw.bonusNum) }}>
               {latestDraw.bonusNum}
             </span>
+          </div>
+        </div>
+      )}
+
+      {weeklyPick && (
+        <div className={styles.weeklyCard}>
+          <div className={styles.weeklyHeader}>
+            <span className={styles.weeklyTitle}>이번 주 추천 번호</span>
+            <span className={styles.weeklyTarget}>{weeklyPick.targetDrawNo}회 대상</span>
+          </div>
+          <div className={styles.latestBalls}>
+            {weeklyPick.numbers.map((n) => (
+              <span
+                key={n}
+                className={`${styles.ball} ${
+                  weeklyPick.resultAvailable && weeklyPick.actualNumbers?.includes(n) ? styles.ballMatched : ""
+                }`}
+                style={{ backgroundColor: getBallColor(n) }}
+              >
+                {n}
+              </span>
+            ))}
+          </div>
+          {weeklyPick.resultAvailable ? (
+            <p className={styles.weeklyResult}>
+              {weeklyPick.actualDrawDate} 추첨 결과 {weeklyPick.matchCount}개 일치
+              {weeklyPick.rank ? ` · ${weeklyPick.rank}` : " · 낙첨"}
+            </p>
+          ) : (
+            <p className={styles.weeklyPending}>{weeklyPick.targetDrawNo}회 추첨 결과를 기다리는 중입니다.</p>
+          )}
+        </div>
+      )}
+
+      {weeklyHistory.length > 0 && (
+        <div className={styles.historyCard}>
+          <span className={styles.weeklyTitle}>지난 추천 이력</span>
+          <div className={styles.historyList}>
+            {weeklyHistory.map((h) => (
+              <div key={h.weekStart} className={styles.historyRow}>
+                <span className={styles.historyDraw}>{h.targetDrawNo}회</span>
+                <div className={styles.historyBalls}>
+                  {h.numbers.map((n) => (
+                    <span
+                      key={n}
+                      className={`${styles.miniBall} ${
+                        h.resultAvailable && h.actualNumbers?.includes(n) ? styles.miniBallMatched : ""
+                      }`}
+                      style={{ backgroundColor: getBallColor(n) }}
+                    >
+                      {n}
+                    </span>
+                  ))}
+                </div>
+                <span className={styles.historyResult}>{h.resultAvailable ? (h.rank ?? "낙첨") : "대기중"}</span>
+              </div>
+            ))}
           </div>
         </div>
       )}
