@@ -14,21 +14,28 @@ class DhLotteryClientTest {
 
     private static final String SUCCESS_BODY = """
             {
-              "returnValue": "success",
-              "drwNo": 1050,
-              "drwNoDate": "2023-01-07",
-              "drwtNo1": 1,
-              "drwtNo2": 7,
-              "drwtNo3": 13,
-              "drwtNo4": 22,
-              "drwtNo5": 31,
-              "drwtNo6": 45,
-              "bnusNo": 10
+              "resultCode": null,
+              "resultMessage": null,
+              "data": {
+                "list": [
+                  {
+                    "ltEpsd": 1050,
+                    "ltRflYmd": "20230107",
+                    "tm1WnNo": 1,
+                    "tm2WnNo": 7,
+                    "tm3WnNo": 13,
+                    "tm4WnNo": 22,
+                    "tm5WnNo": 31,
+                    "tm6WnNo": 45,
+                    "bnsWnNo": 10
+                  }
+                ]
+              }
             }
             """;
 
-    private static final String FAIL_BODY = """
-            { "returnValue": "fail" }
+    private static final String EMPTY_BODY = """
+            { "resultCode": null, "resultMessage": null, "data": { "list": [] } }
             """;
 
     private DhLotteryClient buildClientBackedBy(MockRestServiceServer[] serverOut) {
@@ -41,7 +48,7 @@ class DhLotteryClientTest {
     void returnsSuccessResultForAValidDraw() {
         MockRestServiceServer[] serverOut = new MockRestServiceServer[1];
         DhLotteryClient client = buildClientBackedBy(serverOut);
-        serverOut[0].expect(requestTo("https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=1050"))
+        serverOut[0].expect(requestTo("https://www.dhlottery.co.kr/lt645/selectPstLt645InfoNew.do?srchDir=center&srchLtEpsd=1050"))
                 .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
         FetchDrawResult result = client.fetchDraw(1050);
@@ -51,11 +58,11 @@ class DhLotteryClientTest {
     }
 
     @Test
-    void returnsNotDrawnYetWhenTheApiReportsFail() {
+    void returnsNotDrawnYetWhenTheDrawIsNotInTheResponse() {
         MockRestServiceServer[] serverOut = new MockRestServiceServer[1];
         DhLotteryClient client = buildClientBackedBy(serverOut);
-        serverOut[0].expect(requestTo("https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=99999"))
-                .andRespond(withSuccess(FAIL_BODY, MediaType.APPLICATION_JSON));
+        serverOut[0].expect(requestTo("https://www.dhlottery.co.kr/lt645/selectPstLt645InfoNew.do?srchDir=center&srchLtEpsd=99999"))
+                .andRespond(withSuccess(EMPTY_BODY, MediaType.APPLICATION_JSON));
 
         FetchDrawResult result = client.fetchDraw(99999);
 
@@ -66,7 +73,7 @@ class DhLotteryClientTest {
     void returnsErrorResultOnHttpFailure() {
         MockRestServiceServer[] serverOut = new MockRestServiceServer[1];
         DhLotteryClient client = buildClientBackedBy(serverOut);
-        serverOut[0].expect(requestTo("https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=1050"))
+        serverOut[0].expect(requestTo("https://www.dhlottery.co.kr/lt645/selectPstLt645InfoNew.do?srchDir=center&srchLtEpsd=1050"))
                 .andRespond(withServerError());
 
         FetchDrawResult result = client.fetchDraw(1050);

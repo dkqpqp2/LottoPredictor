@@ -1,15 +1,13 @@
 package com.lottopredictor.backend.crawler;
 
-public record DhLotteryResponse(
-        String returnValue,
-        Integer drwNo,
-        String drwNoDate,
-        Integer drwtNo1,
-        Integer drwtNo2,
-        Integer drwtNo3,
-        Integer drwtNo4,
-        Integer drwtNo5,
-        Integer drwtNo6,
-        Integer bnusNo
-) {
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.List;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record DhLotteryResponse(DhLotteryData data) {
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record DhLotteryData(List<DhLotteryDrawEntry> list) {
+    }
 }

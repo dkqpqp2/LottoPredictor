@@ -1,38 +1,48 @@
 package com.lottopredictor.backend.crawler;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public final class DhLotteryResponseParser {
 
     private DhLotteryResponseParser() {
     }
 
-    public static LottoDrawData parse(DhLotteryResponse response) {
-        if (!"success".equals(response.returnValue())) {
+    public static LottoDrawData parse(DhLotteryResponse response, int requestedDrawNo) {
+        if (response.data() == null || response.data().list() == null) {
             return null;
         }
-        if (response.drwNo() == null
-                || response.drwNoDate() == null
-                || response.drwtNo1() == null
-                || response.drwtNo2() == null
-                || response.drwtNo3() == null
-                || response.drwtNo4() == null
-                || response.drwtNo5() == null
-                || response.drwtNo6() == null
-                || response.bnusNo() == null) {
+
+        DhLotteryDrawEntry entry = response.data().list().stream()
+                .filter(e -> e.ltEpsd() != null && e.ltEpsd() == requestedDrawNo)
+                .findFirst()
+                .orElse(null);
+
+        if (entry == null) {
+            return null;
+        }
+
+        if (entry.ltRflYmd() == null
+                || entry.tm1WnNo() == null
+                || entry.tm2WnNo() == null
+                || entry.tm3WnNo() == null
+                || entry.tm4WnNo() == null
+                || entry.tm5WnNo() == null
+                || entry.tm6WnNo() == null
+                || entry.bnsWnNo() == null) {
             return null;
         }
 
         return new LottoDrawData(
-                response.drwNo(),
-                LocalDate.parse(response.drwNoDate()),
-                response.drwtNo1(),
-                response.drwtNo2(),
-                response.drwtNo3(),
-                response.drwtNo4(),
-                response.drwtNo5(),
-                response.drwtNo6(),
-                response.bnusNo()
+                entry.ltEpsd(),
+                LocalDate.parse(entry.ltRflYmd(), DateTimeFormatter.BASIC_ISO_DATE),
+                entry.tm1WnNo(),
+                entry.tm2WnNo(),
+                entry.tm3WnNo(),
+                entry.tm4WnNo(),
+                entry.tm5WnNo(),
+                entry.tm6WnNo(),
+                entry.bnsWnNo()
         );
     }
 }

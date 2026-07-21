@@ -7,7 +7,7 @@ import org.springframework.web.client.RestClientException;
 @Component
 public class DhLotteryClient {
 
-    private static final String BASE_URL = "https://www.dhlottery.co.kr/common.do";
+    private static final String BASE_URL = "https://www.dhlottery.co.kr/lt645/selectPstLt645InfoNew.do";
 
     private final RestClient restClient;
 
@@ -19,7 +19,7 @@ public class DhLotteryClient {
         DhLotteryResponse response;
         try {
             response = restClient.get()
-                    .uri(BASE_URL + "?method=getLottoNumber&drwNo=" + drawNo)
+                    .uri(BASE_URL + "?srchDir=center&srchLtEpsd=" + drawNo)
                     .retrieve()
                     .body(DhLotteryResponse.class);
         } catch (RestClientException e) {
@@ -30,12 +30,9 @@ public class DhLotteryClient {
             return new FetchDrawResult.Error("empty response");
         }
 
-        LottoDrawData draw = DhLotteryResponseParser.parse(response);
+        LottoDrawData draw = DhLotteryResponseParser.parse(response, drawNo);
         if (draw == null) {
-            if ("fail".equals(response.returnValue())) {
-                return new FetchDrawResult.NotDrawnYet();
-            }
-            return new FetchDrawResult.Error("unexpected response shape");
+            return new FetchDrawResult.NotDrawnYet();
         }
 
         return new FetchDrawResult.Success(draw);

@@ -24,7 +24,9 @@ public class CrawlController {
     }
 
     @PostMapping("/api/crawl")
-    public ResponseEntity<SyncResult> crawl(@RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<SyncResult> crawl(
+            @RequestHeader(value = "Authorization", required = false) String authorization
+    ) {
         if (!("Bearer " + crawlSecret).equals(authorization)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
