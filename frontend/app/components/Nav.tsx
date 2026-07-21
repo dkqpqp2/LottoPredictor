@@ -1,0 +1,33 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import styles from "./Nav.module.css";
+
+const LINKS = [
+  { href: "/", label: "홈" },
+  { href: "/stats", label: "통계" },
+  { href: "/draws", label: "회차조회" },
+  { href: "/collect", label: "수집하기" },
+];
+
+export default function Nav() {
+  const pathname = usePathname();
+
+  return (
+    <nav className={styles.nav}>
+      <Link href="/" className={styles.brand}>
+        로또 번호 통계
+      </Link>
+      {LINKS.map((link) => (
+        <Link
+          key={link.href}
+          href={link.href}
+          className={`${styles.link} ${pathname === link.href ? styles.linkActive : ""}`}
+        >
+          {link.label}
+        </Link>
+      ))}
+    </nav>
+  );
+}

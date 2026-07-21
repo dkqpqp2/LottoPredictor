@@ -1,0 +1,86 @@
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.form {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+}
+
+.form input {
+  flex: 1;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.form button {
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  background: #171717;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #c0392b;
+  font-size: 0.9rem;
+}
+
+.resultBox {
+  padding: 1.25rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.skippedItem {
+  color: #c0392b;
+}
+
+@media (prefers-color-scheme: dark) {
+  .form,
+  .resultBox {
+    border-color: #333;
+  }
+
+  .form input {
+    border-color: #444;
+    background: #111;
+    color: #ededed;
+  }
+
+  .form button {
+    background: #ededed;
+    color: #111;
+  }
+}
