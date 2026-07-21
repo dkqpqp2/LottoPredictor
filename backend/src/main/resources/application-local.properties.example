@@ -1,0 +1,5 @@
+spring.datasource.url=jdbc:postgresql://<host>:5432/postgres?sslmode=require
+spring.datasource.username=postgres
+spring.datasource.password=<supabase-db-password>
+lotto.crawl-secret=<any-random-string>
+lotto.frontend-origin=http://localhost:3000
