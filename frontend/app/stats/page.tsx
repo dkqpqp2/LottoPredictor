@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import styles from "./stats.module.css";
 import { getStats, type NumberStat } from "../../lib/api";
+import { getBallColor } from "../../lib/lottoBall";
 
 type SortOrder = "number" | "count";
 
@@ -52,7 +53,11 @@ export default function StatsPage() {
               <span className={styles.highlightTitle}>가장 많이 나온 번호</span>
               <div className={styles.highlightBalls}>
                 {mostDrawn.map((s) => (
-                  <span key={s.number} className={styles.highlightBall}>
+                  <span
+                    key={s.number}
+                    className={styles.highlightBall}
+                    style={{ backgroundColor: getBallColor(s.number) }}
+                  >
                     {s.number}
                   </span>
                 ))}
@@ -62,7 +67,11 @@ export default function StatsPage() {
               <span className={styles.highlightTitle}>가장 적게 나온 번호</span>
               <div className={styles.highlightBalls}>
                 {leastDrawn.map((s) => (
-                  <span key={s.number} className={`${styles.highlightBall} ${styles.highlightBallMuted}`}>
+                  <span
+                    key={s.number}
+                    className={styles.highlightBall}
+                    style={{ backgroundColor: getBallColor(s.number) }}
+                  >
                     {s.number}
                   </span>
                 ))}
@@ -93,7 +102,9 @@ export default function StatsPage() {
           <div className={styles.card}>
             {sortedStats.map((stat) => (
               <div key={stat.number} className={styles.row}>
-                <span className={styles.numberBadge}>{stat.number}</span>
+                <span className={styles.numberBadge} style={{ backgroundColor: getBallColor(stat.number) }}>
+                  {stat.number}
+                </span>
                 <span className={styles.barTrack}>
                   <span
                     className={styles.barFill}

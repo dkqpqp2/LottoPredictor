@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./page.module.css";
-import { generateNumbers, type GenerateMode, type GenerateResult } from "../lib/api";
+import { generateNumbers, getDraws, type DrawResponse, type GenerateMode, type GenerateResult } from "../lib/api";
+import { getBallColor } from "../lib/lottoBall";
 
 export default function Home() {
   const [mode, setMode] = useState<GenerateMode>("weighted");
@@ -10,6 +11,13 @@ export default function Home() {
   const [result, setResult] = useState<GenerateResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [latestDraw, setLatestDraw] = useState<DrawResponse | null>(null);
+
+  useEffect(() => {
+    getDraws({ page: 0, size: 1 })
+      .then((draws) => setLatestDraw(draws[0] ?? null))
+      .catch(() => setLatestDraw(null));
+  }, []);
 
   async function handleGenerate() {
     setLoading(true);
@@ -35,6 +43,25 @@ export default function Home() {
         </p>
       </section>
 
+      {latestDraw && (
+        <div className={styles.latestCard}>
+          <span className={styles.latestLabel}>
+            {latestDraw.drawNo}회 1등 당첨번호 <span className={styles.latestDate}>{latestDraw.drawDate}</span>
+          </span>
+          <div className={styles.latestBalls}>
+            {latestDraw.numbers.map((n) => (
+              <span key={n} className={styles.ball} style={{ backgroundColor: getBallColor(n) }}>
+                {n}
+              </span>
+            ))}
+            <span className={styles.plus}>+</span>
+            <span className={styles.ball} style={{ backgroundColor: getBallColor(latestDraw.bonusNum) }}>
+              {latestDraw.bonusNum}
+            </span>
+          </div>
+        </div>
+      )}
+
       <div className={styles.card}>
         <div className={styles.controlsRow}>
           <div className={styles.segmented}>
@@ -54,16 +81,30 @@ export default function Home() {
             </button>
           </div>
 
-          <label className={styles.setsField}>
-            세트 수
-            <input
-              type="number"
-              min={1}
-              max={10}
-              value={sets}
-              onChange={(e) => setSets(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
-            />
-          </label>
+          <div className={styles.setsField}>
+            <span>세트 수</span>
+            <div className={styles.stepper}>
+              <button
+                type="button"
+                className={styles.stepperButton}
+                onClick={() => setSets((s) => Math.max(1, s - 1))}
+                disabled={sets <= 1}
+                aria-label="세트 수 감소"
+              >
+                −
+              </button>
+              <span className={styles.stepperValue}>{sets}</span>
+              <button
+                type="button"
+                className={styles.stepperButton}
+                onClick={() => setSets((s) => Math.min(10, s + 1))}
+                disabled={sets >= 10}
+                aria-label="세트 수 증가"
+              >
+                +
+              </button>
+            </div>
+          </div>
         </div>
 
         <button className={styles.generateButton} onClick={handleGenerate} disabled={loading}>
@@ -83,7 +124,7 @@ export default function Home() {
               <span className={styles.resultIndex}>{i + 1}</span>
               <div className={styles.resultBalls}>
                 {set.map((n) => (
-                  <span key={n} className={styles.ball}>
+                  <span key={n} className={styles.ball} style={{ backgroundColor: getBallColor(n) }}>
                     {n}
                   </span>
                 ))}

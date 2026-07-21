@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import styles from "./draws.module.css";
 import { getDraws, type DrawResponse } from "../../lib/api";
+import { getBallColor } from "../../lib/lottoBall";
 
 const PAGE_SIZE = 10;
 
@@ -85,12 +86,14 @@ export default function DrawsPage() {
               </div>
               <div className={styles.balls}>
                 {draw.numbers.map((n) => (
-                  <span key={n} className={styles.ball}>
+                  <span key={n} className={styles.ball} style={{ backgroundColor: getBallColor(n) }}>
                     {n}
                   </span>
                 ))}
                 <span className={styles.plus}>+</span>
-                <span className={`${styles.ball} ${styles.bonusBall}`}>{draw.bonusNum}</span>
+                <span className={styles.ball} style={{ backgroundColor: getBallColor(draw.bonusNum) }}>
+                  {draw.bonusNum}
+                </span>
               </div>
             </div>
           ))}

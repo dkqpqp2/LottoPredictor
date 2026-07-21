@@ -37,6 +37,38 @@
   box-shadow: var(--shadow-sm);
 }
 
+.latestCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.1rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.latestLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.latestDate {
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.latestBalls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
 .controlsRow {
   display: flex;
   flex-wrap: wrap;
@@ -84,15 +116,48 @@
   font-weight: 500;
 }
 
-.setsField input {
-  width: 3.5rem;
-  padding: 0.4rem 0.5rem;
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
   border: 1px solid var(--surface-border);
-  border-radius: var(--radius-sm);
-  background: var(--background);
+  border-radius: 999px;
+  padding: 0.2rem;
+}
+
+.stepperButton {
+  width: 1.7rem;
+  height: 1.7rem;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface-hover);
   color: var(--foreground);
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.stepperButton:hover:not(:disabled) {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.stepperButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.stepperValue {
+  width: 1.8rem;
   text-align: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .generateButton {
@@ -171,6 +236,12 @@
   justify-content: center;
   font-weight: 700;
   font-size: 0.9rem;
-  background: var(--ball-bg);
-  color: var(--ball-fg);
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+.plus {
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+  font-weight: 600;
 }
