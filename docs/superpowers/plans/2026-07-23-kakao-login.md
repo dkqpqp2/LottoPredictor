@@ -269,7 +269,7 @@ public class JwtService {
                 .claim("nickname", nickname)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(EXPIRY_DAYS, ChronoUnit.DAYS)))
-                .signWith(key)
+                .signWith(key, Jwts.SIG.HS256)
                 .compact();
     }
 
