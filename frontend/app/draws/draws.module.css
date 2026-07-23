@@ -28,8 +28,8 @@
 .searchForm {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem;
-  align-items: center;
+  gap: 1rem;
+  align-items: flex-end;
   padding: 1.25rem;
   background: var(--surface);
   border: 1px solid var(--surface-border);
@@ -37,40 +37,103 @@
   box-shadow: var(--shadow-sm);
 }
 
-.searchForm input {
-  padding: 0.5rem 0.7rem;
+.fieldsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  flex: 1;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 9rem;
+}
+
+.fieldLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.textInput,
+.dateInput {
+  padding: 0.6rem 0.85rem;
   border: 1px solid var(--surface-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: var(--background);
   color: var(--foreground);
   font-size: 0.9rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.searchForm button {
-  padding: 0.5rem 1.1rem;
+.textInput:focus,
+.dateInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.dateInput {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  .dateInput {
+    color-scheme: dark;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.searchButton {
+  padding: 0.65rem 1.4rem;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 999px;
   background: var(--accent);
   color: var(--accent-foreground);
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
   transition: background-color 0.15s ease;
+  white-space: nowrap;
 }
 
-.searchForm button:hover {
+.searchButton:hover {
   background: var(--accent-hover);
 }
 
 .resetButton {
-  background: transparent !important;
-  color: var(--text-secondary) !important;
-  border: 1px solid var(--surface-border) !important;
+  padding: 0.65rem 1.2rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
 }
 
 .resetButton:hover {
-  color: var(--foreground) !important;
-  background: var(--surface-hover) !important;
+  color: var(--foreground);
+  background: var(--surface-hover);
+}
+
+@media (max-width: 480px) {
+  .searchForm {
+    align-items: stretch;
+  }
+
+  .actions {
+    justify-content: flex-end;
+  }
 }
 
 .error {

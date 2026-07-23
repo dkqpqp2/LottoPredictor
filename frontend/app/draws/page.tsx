@@ -58,19 +58,45 @@ export default function DrawsPage() {
       </section>
 
       <form className={styles.searchForm} onSubmit={handleSearch}>
-        <input
-          type="number"
-          placeholder="회차 번호"
-          value={drawNoInput}
-          onChange={(e) => setDrawNoInput(e.target.value)}
-        />
-        <input type="date" value={dateInput} onChange={(e) => setDateInput(e.target.value)} />
-        <button type="submit">검색</button>
-        {isSearching && (
-          <button type="button" className={styles.resetButton} onClick={handleReset}>
-            초기화
+        <div className={styles.fieldsRow}>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel} htmlFor="drawNoInput">
+              회차 번호
+            </label>
+            <input
+              id="drawNoInput"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              placeholder="예: 1234"
+              className={styles.textInput}
+              value={drawNoInput}
+              onChange={(e) => setDrawNoInput(e.target.value.replace(/[^0-9]/g, ""))}
+            />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel} htmlFor="dateInput">
+              추첨일
+            </label>
+            <input
+              id="dateInput"
+              type="date"
+              className={styles.dateInput}
+              value={dateInput}
+              onChange={(e) => setDateInput(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className={styles.actions}>
+          <button type="submit" className={styles.searchButton}>
+            검색
           </button>
-        )}
+          {isSearching && (
+            <button type="button" className={styles.resetButton} onClick={handleReset}>
+              초기화
+            </button>
+          )}
+        </div>
       </form>
 
       {error && <p className={styles.error}>{error}</p>}
