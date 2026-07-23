@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import styles from "./page.module.css";
 import { getBallColor } from "../lib/lottoBall";
 import { DIRECTION_LABELS, TAROT_CARDS, shuffleCards, type CardDirection, type TarotCard } from "../lib/tarotCards";
@@ -238,6 +239,14 @@ export default function Home() {
 
       {selected && direction && (
         <div className={styles.resultCard}>
+          <Image
+            src={`/tarot/${selected.number}.jpg`}
+            alt={`${selected.nameKo} (${selected.nameEn})`}
+            width={200}
+            height={335}
+            className={styles.cardImage}
+            priority
+          />
           <div className={styles.resultHeader}>
             <span className={styles.cardName}>
               {selected.nameKo} <span className={styles.cardNameEn}>({selected.nameEn})</span>
