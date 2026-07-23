@@ -8,16 +8,20 @@ import { DIRECTION_LABELS, TAROT_CARDS, shuffleCards, type CardDirection, type T
 import { detectDragDirection } from "../lib/dragDirection";
 import { generateTarotNumbers } from "../lib/tarotNumberGenerator";
 import { getZodiacSign, type ZodiacSign } from "../lib/zodiac";
+import LottoDrawAnimation from "./components/LottoDrawAnimation";
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 100 }, (_, i) => CURRENT_YEAR - i);
 const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
+
+type ViewMode = "unset" | "tarot-only" | "with-zodiac";
 
 function daysInMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate();
 }
 
 export default function Home() {
+  const [viewMode, setViewMode] = useState<ViewMode>("unset");
   const [year, setYear] = useState<number | "">("");
   const [month, setMonth] = useState(1);
   const [day, setDay] = useState<number | null>(null);
@@ -25,6 +29,8 @@ export default function Home() {
   const [selected, setSelected] = useState<TarotCard | null>(null);
   const [direction, setDirection] = useState<CardDirection | null>(null);
   const [numbers, setNumbers] = useState<number[] | null>(null);
+  const [pendingNumbers, setPendingNumbers] = useState<number[] | null>(null);
+  const [animating, setAnimating] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
@@ -99,7 +105,14 @@ export default function Home() {
 
   function handleGenerateNumbers() {
     if (!selected || !direction) return;
-    setNumbers(generateTarotNumbers(selected, zodiac, direction));
+    setPendingNumbers(generateTarotNumbers(selected, zodiac, direction));
+    setAnimating(true);
+  }
+
+  function handleNumbersDrawComplete() {
+    setNumbers(pendingNumbers);
+    setPendingNumbers(null);
+    setAnimating(false);
   }
 
   function handleReset() {
@@ -107,8 +120,18 @@ export default function Home() {
     setSelected(null);
     setDirection(null);
     setNumbers(null);
+    setPendingNumbers(null);
+    setAnimating(false);
     setIsDragging(false);
     setDragOffset({ x: 0, y: 0 });
+  }
+
+  function handleChangeMode() {
+    setViewMode("unset");
+    setYear("");
+    setMonth(1);
+    setDay(null);
+    handleReset();
   }
 
   const fortuneText = useMemo(() => {
@@ -127,8 +150,26 @@ export default function Home() {
         </p>
       </section>
 
+      {viewMode === "unset" && (
+        <div className={styles.modeChoice}>
+          <button type="button" className={styles.modeButton} onClick={() => setViewMode("tarot-only")}>
+            타로만 보기
+          </button>
+          <button type="button" className={styles.modeButton} onClick={() => setViewMode("with-zodiac")}>
+            생년월일로 별자리도 함께 보기
+          </button>
+        </div>
+      )}
+
+      {viewMode !== "unset" && (
+        <button type="button" className={styles.changeModeLink} onClick={handleChangeMode}>
+          ← 다른 방식으로 다시 시작하기
+        </button>
+      )}
+
+      {viewMode === "with-zodiac" && (
       <div className={styles.card}>
-        <span className={styles.fieldLabel}>생년월일 (선택 · 입력하면 별자리 운도 함께 봐요)</span>
+        <span className={styles.fieldLabel}>생년월일</span>
         <select
           aria-label="출생 연도"
           className={styles.yearSelect}
@@ -194,8 +235,9 @@ export default function Home() {
 
         {zodiac && <p className={styles.zodiacResult}>당신의 별자리는 {zodiac.name}입니다.</p>}
       </div>
+      )}
 
-      {!selected && (
+      {viewMode !== "unset" && !selected && (viewMode === "tarot-only" || zodiac) && (
         <div className={styles.spreadWrapper}>
           <p className={styles.hint}>카드 한 장을 골라주세요.</p>
           <div className={styles.spread}>
@@ -261,16 +303,24 @@ export default function Home() {
             </p>
           )}
 
-          {!numbers ? (
+          {!numbers && !animating && (
             <>
               <button type="button" className={styles.generateButton} onClick={handleGenerateNumbers}>
                 번호 뽑기
               </button>
-              {!zodiac && (
+              {viewMode === "with-zodiac" && !zodiac && (
                 <p className={styles.hint}>생년월일을 입력하면 별자리 운도 함께 반영돼요.</p>
               )}
             </>
-          ) : (
+          )}
+
+          {animating && pendingNumbers && (
+            <div className={styles.animationWrapper}>
+              <LottoDrawAnimation numbers={pendingNumbers} onComplete={handleNumbersDrawComplete} />
+            </div>
+          )}
+
+          {numbers && (
             <div className={styles.numbersRow}>
               {numbers.map((n) => (
                 <span key={n} className={styles.ball} style={{ backgroundColor: getBallColor(n) }}>

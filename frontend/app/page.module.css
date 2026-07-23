@@ -49,6 +49,54 @@
   line-height: 1.6;
 }
 
+.modeChoice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modeButton {
+  padding: 1rem;
+  border: 1px solid var(--cosmic-border);
+  border-radius: 14px;
+  background: var(--cosmic-surface);
+  color: var(--cosmic-text);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.modeButton:hover {
+  border-color: var(--cosmic-gold);
+  background: var(--cosmic-gold-soft);
+}
+
+.changeModeLink {
+  align-self: center;
+  border: none;
+  background: transparent;
+  color: var(--cosmic-text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.changeModeLink:hover {
+  color: var(--cosmic-gold);
+}
+
+.animationWrapper {
+  --surface: var(--cosmic-surface);
+  --surface-border: var(--cosmic-border);
+  --surface-hover: var(--cosmic-gold-soft);
+  --text-secondary: var(--cosmic-text-secondary);
+  --accent: var(--cosmic-gold);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .card {
   display: flex;
   flex-direction: column;
