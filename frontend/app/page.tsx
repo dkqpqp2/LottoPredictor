@@ -13,11 +13,14 @@ import {
   type WeeklyPickResult,
 } from "../lib/api";
 import { getBallColor } from "../lib/lottoBall";
+import LottoDrawAnimation from "./components/LottoDrawAnimation";
 
 export default function Home() {
   const [mode, setMode] = useState<GenerateMode>("weighted");
   const [sets, setSets] = useState(1);
   const [result, setResult] = useState<GenerateResult | null>(null);
+  const [pendingResult, setPendingResult] = useState<GenerateResult | null>(null);
+  const [animating, setAnimating] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [latestDraw, setLatestDraw] = useState<DrawResponse | null>(null);
@@ -41,12 +44,26 @@ export default function Home() {
     setError(null);
     try {
       const data = await generateNumbers(mode, sets);
-      setResult(data);
+      if (sets === 1) {
+        setResult(null);
+        setPendingResult(data);
+        setAnimating(true);
+      } else {
+        setPendingResult(null);
+        setAnimating(false);
+        setResult(data);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleDrawComplete() {
+    setResult(pendingResult);
+    setPendingResult(null);
+    setAnimating(false);
   }
 
   return (
@@ -143,6 +160,7 @@ export default function Home() {
               type="button"
               className={`${styles.segment} ${mode === "weighted" ? styles.segmentActive : ""}`}
               onClick={() => setMode("weighted")}
+              disabled={animating}
             >
               가중치 기반
             </button>
@@ -150,6 +168,7 @@ export default function Home() {
               type="button"
               className={`${styles.segment} ${mode === "random" ? styles.segmentActive : ""}`}
               onClick={() => setMode("random")}
+              disabled={animating}
             >
               완전 랜덤
             </button>
@@ -162,7 +181,7 @@ export default function Home() {
                 type="button"
                 className={styles.stepperButton}
                 onClick={() => setSets((s) => Math.max(1, s - 1))}
-                disabled={sets <= 1}
+                disabled={sets <= 1 || animating}
                 aria-label="세트 수 감소"
               >
                 −
@@ -172,7 +191,7 @@ export default function Home() {
                 type="button"
                 className={styles.stepperButton}
                 onClick={() => setSets((s) => Math.min(10, s + 1))}
-                disabled={sets >= 10}
+                disabled={sets >= 10 || animating}
                 aria-label="세트 수 증가"
               >
                 +
@@ -181,12 +200,16 @@ export default function Home() {
           </div>
         </div>
 
-        <button className={styles.generateButton} onClick={handleGenerate} disabled={loading}>
+        <button className={styles.generateButton} onClick={handleGenerate} disabled={loading || animating}>
           {loading ? "생성 중..." : "번호 생성"}
         </button>
       </div>
 
       {error && <p className={styles.error}>{error}</p>}
+
+      {animating && pendingResult && (
+        <LottoDrawAnimation numbers={pendingResult.results[0]} onComplete={handleDrawComplete} />
+      )}
 
       {result && (
         <div className={styles.results}>
