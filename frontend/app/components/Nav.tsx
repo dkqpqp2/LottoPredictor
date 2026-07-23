@@ -6,9 +6,9 @@ import styles from "./Nav.module.css";
 
 const LINKS = [
   { href: "/", label: "홈" },
+  { href: "/generate", label: "번호생성" },
   { href: "/stats", label: "통계" },
   { href: "/draws", label: "회차조회" },
-  { href: "/tarot", label: "타로" },
   { href: "/collect", label: "수집하기" },
 ];
 

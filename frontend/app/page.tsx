@@ -1,233 +1,274 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import styles from "./page.module.css";
-import {
-  generateNumbers,
-  getDraws,
-  getWeeklyPick,
-  getWeeklyPickHistory,
-  type DrawResponse,
-  type GenerateMode,
-  type GenerateResult,
-  type WeeklyPickResult,
-} from "../lib/api";
 import { getBallColor } from "../lib/lottoBall";
-import LottoDrawAnimation from "./components/LottoDrawAnimation";
+import { DIRECTION_LABELS, TAROT_CARDS, shuffleCards, type CardDirection, type TarotCard } from "../lib/tarotCards";
+import { detectDragDirection } from "../lib/dragDirection";
+import { generateTarotNumbers } from "../lib/tarotNumberGenerator";
+import { getZodiacSign, type ZodiacSign } from "../lib/zodiac";
+
+const CURRENT_YEAR = new Date().getFullYear();
+const YEAR_OPTIONS = Array.from({ length: 100 }, (_, i) => CURRENT_YEAR - i);
+const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
+
+function daysInMonth(year: number, month: number): number {
+  return new Date(year, month, 0).getDate();
+}
 
 export default function Home() {
-  const [mode, setMode] = useState<GenerateMode>("weighted");
-  const [sets, setSets] = useState(1);
-  const [result, setResult] = useState<GenerateResult | null>(null);
-  const [pendingResult, setPendingResult] = useState<GenerateResult | null>(null);
-  const [animating, setAnimating] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [latestDraw, setLatestDraw] = useState<DrawResponse | null>(null);
-  const [weeklyPick, setWeeklyPick] = useState<WeeklyPickResult | null>(null);
-  const [weeklyHistory, setWeeklyHistory] = useState<WeeklyPickResult[]>([]);
+  const [year, setYear] = useState<number | "">("");
+  const [month, setMonth] = useState(1);
+  const [day, setDay] = useState<number | null>(null);
+  const [spread, setSpread] = useState<TarotCard[]>(() => shuffleCards(TAROT_CARDS));
+  const [selected, setSelected] = useState<TarotCard | null>(null);
+  const [direction, setDirection] = useState<CardDirection | null>(null);
+  const [numbers, setNumbers] = useState<number[] | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
-  useEffect(() => {
-    getDraws({ page: 0, size: 1 })
-      .then((draws) => setLatestDraw(draws[0] ?? null))
-      .catch(() => setLatestDraw(null));
-    getWeeklyPick()
-      .then(setWeeklyPick)
-      .catch(() => setWeeklyPick(null));
-    getWeeklyPickHistory(5)
-      .then(setWeeklyHistory)
-      .catch(() => setWeeklyHistory([]));
-  }, []);
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
 
-  async function handleGenerate() {
-    setLoading(true);
-    setError(null);
+  const calendarCells = useMemo(() => {
+    if (!year) return [];
+    const firstWeekday = new Date(year, month - 1, 1).getDay();
+    const total = daysInMonth(year, month);
+    const blanks: null[] = Array.from({ length: firstWeekday }, () => null);
+    const days = Array.from({ length: total }, (_, i) => i + 1);
+    return [...blanks, ...days];
+  }, [year, month]);
+
+  const zodiac: ZodiacSign | null = useMemo(() => {
+    if (!year || !day) return null;
+    return getZodiacSign(new Date(year, month - 1, day));
+  }, [year, month, day]);
+
+  function handleYearChange(value: string) {
+    setYear(value ? Number(value) : "");
+    setDay(null);
+  }
+
+  function handlePrevMonth() {
+    setMonth((m) => Math.max(1, m - 1));
+    setDay(null);
+  }
+
+  function handleNextMonth() {
+    setMonth((m) => Math.min(12, m + 1));
+    setDay(null);
+  }
+
+  function handleCardClick(card: TarotCard) {
+    if (selected) return;
+    setSelected(card);
+  }
+
+  function handlePointerDown(e: React.PointerEvent) {
     try {
-      const data = await generateNumbers(mode, sets);
-      if (sets === 1) {
-        setResult(null);
-        setPendingResult(data);
-        setAnimating(true);
-      } else {
-        setPendingResult(null);
-        setAnimating(false);
-        setResult(data);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
-    } finally {
-      setLoading(false);
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // pointer capture is best-effort (keeps the drag working on touch devices
+      // even if capture isn't available); the drag logic below doesn't depend on it.
+    }
+    dragStart.current = { x: e.clientX, y: e.clientY };
+    setIsDragging(true);
+    setDragOffset({ x: 0, y: 0 });
+  }
+
+  function handlePointerMove(e: React.PointerEvent) {
+    if (!dragStart.current) return;
+    setDragOffset({ x: e.clientX - dragStart.current.x, y: e.clientY - dragStart.current.y });
+  }
+
+  function handlePointerUp(e: React.PointerEvent) {
+    if (!dragStart.current || direction) return;
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    const detected = detectDragDirection(dx, dy);
+    dragStart.current = null;
+    setIsDragging(false);
+    if (detected) {
+      setDirection(detected);
+    } else {
+      setDragOffset({ x: 0, y: 0 });
     }
   }
 
-  function handleDrawComplete() {
-    setResult(pendingResult);
-    setPendingResult(null);
-    setAnimating(false);
+  const previewDirection = isDragging ? detectDragDirection(dragOffset.x, dragOffset.y, 15) : null;
+
+  function handleGenerateNumbers() {
+    if (!selected || !direction || !zodiac) return;
+    setNumbers(generateTarotNumbers(selected, zodiac, direction));
   }
+
+  function handleReset() {
+    setSpread(shuffleCards(TAROT_CARDS));
+    setSelected(null);
+    setDirection(null);
+    setNumbers(null);
+    setIsDragging(false);
+    setDragOffset({ x: 0, y: 0 });
+  }
+
+  const fortuneText = useMemo(() => {
+    if (!selected || !direction) return null;
+    return selected.fortunes[direction];
+  }, [selected, direction]);
 
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
-        <h1 className={styles.title}>통계 기반 추천 번호</h1>
+        <h1 className={styles.title}>타로 운세 번호</h1>
         <p className={styles.subtitle}>
-          역대 로또 6/45 당첨번호의 출현 빈도를 가중치로 삼아 번호를 생성합니다.
+          카드 한 장과 별자리로 오늘의 이야기를 만들어 보세요.
           <br />
-          실제 당첨을 예측하는 것은 아니며, 재미로 참고해 주세요.
+          실제 운세를 예측하는 것은 아니며, 재미로 참고해 주세요.
         </p>
       </section>
 
-      {latestDraw && (
-        <div className={styles.latestCard}>
-          <span className={styles.latestLabel}>
-            {latestDraw.drawNo}회 1등 당첨번호 <span className={styles.latestDate}>{latestDraw.drawDate}</span>
-          </span>
-          <div className={styles.latestBalls}>
-            {latestDraw.numbers.map((n) => (
-              <span key={n} className={styles.ball} style={{ backgroundColor: getBallColor(n) }}>
-                {n}
-              </span>
-            ))}
-            <span className={styles.plus}>+</span>
-            <span className={styles.ball} style={{ backgroundColor: getBallColor(latestDraw.bonusNum) }}>
-              {latestDraw.bonusNum}
-            </span>
-          </div>
-        </div>
-      )}
-
-      {weeklyPick && (
-        <div className={styles.weeklyCard}>
-          <div className={styles.weeklyHeader}>
-            <span className={styles.weeklyTitle}>이번 주 추천 번호</span>
-            <span className={styles.weeklyTarget}>{weeklyPick.targetDrawNo}회 대상</span>
-          </div>
-          <div className={styles.latestBalls}>
-            {weeklyPick.numbers.map((n) => (
-              <span
-                key={n}
-                className={`${styles.ball} ${
-                  weeklyPick.resultAvailable && weeklyPick.actualNumbers?.includes(n) ? styles.ballMatched : ""
-                }`}
-                style={{ backgroundColor: getBallColor(n) }}
-              >
-                {n}
-              </span>
-            ))}
-          </div>
-          {weeklyPick.resultAvailable ? (
-            <p className={styles.weeklyResult}>
-              {weeklyPick.actualDrawDate} 추첨 결과 {weeklyPick.matchCount}개 일치
-              {weeklyPick.rank ? ` · ${weeklyPick.rank}` : " · 낙첨"}
-            </p>
-          ) : (
-            <p className={styles.weeklyPending}>{weeklyPick.targetDrawNo}회 추첨 결과를 기다리는 중입니다.</p>
-          )}
-        </div>
-      )}
-
-      {weeklyHistory.length > 0 && (
-        <div className={styles.historyCard}>
-          <span className={styles.weeklyTitle}>지난 추천 이력</span>
-          <div className={styles.historyList}>
-            {weeklyHistory.map((h) => (
-              <div key={h.weekStart} className={styles.historyRow}>
-                <span className={styles.historyDraw}>{h.targetDrawNo}회</span>
-                <div className={styles.historyBalls}>
-                  {h.numbers.map((n) => (
-                    <span
-                      key={n}
-                      className={`${styles.miniBall} ${
-                        h.resultAvailable && h.actualNumbers?.includes(n) ? styles.miniBallMatched : ""
-                      }`}
-                      style={{ backgroundColor: getBallColor(n) }}
-                    >
-                      {n}
-                    </span>
-                  ))}
-                </div>
-                <span className={styles.historyResult}>{h.resultAvailable ? (h.rank ?? "낙첨") : "대기중"}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div className={styles.card}>
-        <div className={styles.controlsRow}>
-          <div className={styles.segmented}>
-            <button
-              type="button"
-              className={`${styles.segment} ${mode === "weighted" ? styles.segmentActive : ""}`}
-              onClick={() => setMode("weighted")}
-              disabled={animating}
-            >
-              가중치 기반
-            </button>
-            <button
-              type="button"
-              className={`${styles.segment} ${mode === "random" ? styles.segmentActive : ""}`}
-              onClick={() => setMode("random")}
-              disabled={animating}
-            >
-              완전 랜덤
-            </button>
-          </div>
+        <span className={styles.fieldLabel}>생년월일</span>
+        <select
+          aria-label="출생 연도"
+          className={styles.yearSelect}
+          value={year}
+          onChange={(e) => handleYearChange(e.target.value)}
+        >
+          <option value="">년도 선택</option>
+          {YEAR_OPTIONS.map((y) => (
+            <option key={y} value={y}>
+              {y}년
+            </option>
+          ))}
+        </select>
 
-          <div className={styles.setsField}>
-            <span>세트 수</span>
-            <div className={styles.stepper}>
+        {year && (
+          <div className={styles.calendar}>
+            <div className={styles.calendarHeader}>
               <button
                 type="button"
-                className={styles.stepperButton}
-                onClick={() => setSets((s) => Math.max(1, s - 1))}
-                disabled={sets <= 1 || animating}
-                aria-label="세트 수 감소"
+                className={styles.calendarNav}
+                onClick={handlePrevMonth}
+                disabled={month === 1}
+                aria-label="이전 달"
               >
-                −
+                ‹
               </button>
-              <span className={styles.stepperValue}>{sets}</span>
+              <span className={styles.calendarTitle}>
+                {year}년 {month}월
+              </span>
               <button
                 type="button"
-                className={styles.stepperButton}
-                onClick={() => setSets((s) => Math.min(10, s + 1))}
-                disabled={sets >= 10 || animating}
-                aria-label="세트 수 증가"
+                className={styles.calendarNav}
+                onClick={handleNextMonth}
+                disabled={month === 12}
+                aria-label="다음 달"
               >
-                +
+                ›
               </button>
             </div>
+            <div className={styles.calendarGrid}>
+              {WEEKDAY_LABELS.map((w) => (
+                <span key={w} className={styles.calendarWeekday}>
+                  {w}
+                </span>
+              ))}
+              {calendarCells.map((d, i) =>
+                d === null ? (
+                  <span key={`blank-${i}`} />
+                ) : (
+                  <button
+                    key={d}
+                    type="button"
+                    className={`${styles.calendarDay} ${day === d ? styles.calendarDaySelected : ""}`}
+                    onClick={() => setDay(d)}
+                  >
+                    {d}
+                  </button>
+                )
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
-        <button className={styles.generateButton} onClick={handleGenerate} disabled={loading || animating}>
-          {loading ? "생성 중..." : "번호 생성"}
-        </button>
+        {zodiac && <p className={styles.zodiacResult}>당신의 별자리는 {zodiac.name}입니다.</p>}
       </div>
 
-      {error && <p className={styles.error}>{error}</p>}
-
-      {animating && pendingResult && (
-        <LottoDrawAnimation numbers={pendingResult.results[0]} onComplete={handleDrawComplete} />
+      {zodiac && !selected && (
+        <div className={styles.spreadWrapper}>
+          <p className={styles.hint}>카드 한 장을 골라주세요.</p>
+          <div className={styles.spread}>
+            {spread.map((card, i) => (
+              <button
+                key={card.number}
+                type="button"
+                className={styles.cardBack}
+                onClick={() => handleCardClick(card)}
+                aria-label={`카드 ${i + 1}`}
+              >
+                <span className={styles.cardBackSymbol}>✦</span>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
-      {result && (
-        <div className={styles.results}>
-          {result.mode !== mode && (
-            <p className={styles.notice}>아직 저장된 회차 데이터가 없어 완전 랜덤 모드로 생성되었습니다.</p>
+      {selected && !direction && (
+        <div className={styles.revealWrapper}>
+          <p className={styles.hint}>카드를 원하는 방향으로 드래그해서 뒤집어 보세요.</p>
+          <div
+            className={`${styles.dragCard} ${!isDragging ? styles.dragCardSnap : ""}`}
+            style={{
+              transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) rotate(${dragOffset.x * 0.05}deg)`,
+            }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+          >
+            <span className={styles.cardBackSymbol}>✦</span>
+          </div>
+          <div className={styles.directionHints}>
+            <span className={previewDirection === "up" ? styles.directionHintActive : ""}>↑ 위</span>
+            <span className={previewDirection === "down" ? styles.directionHintActive : ""}>↓ 아래</span>
+            <span className={previewDirection === "left" ? styles.directionHintActive : ""}>← 왼쪽</span>
+            <span className={previewDirection === "right" ? styles.directionHintActive : ""}>→ 오른쪽</span>
+          </div>
+        </div>
+      )}
+
+      {selected && direction && (
+        <div className={styles.resultCard}>
+          <div className={styles.resultHeader}>
+            <span className={styles.cardName}>
+              {selected.nameKo} <span className={styles.cardNameEn}>({selected.nameEn})</span>
+            </span>
+            <span className={styles.cardKeyword}>{selected.keyword}</span>
+          </div>
+          <p className={styles.directionLabel}>{DIRECTION_LABELS[direction]} 방향으로 뒤집혔습니다</p>
+          <p className={styles.fortuneText}>{fortuneText}</p>
+          {zodiac && (
+            <p className={styles.zodiacBlurb}>
+              {zodiac.name}인 당신에게는 {zodiac.luckyNumbers.join(", ")}번이 특별한 기운을 더합니다.
+            </p>
           )}
-          {result.results.map((set, i) => (
-            <div key={i} className={styles.resultCard}>
-              <span className={styles.resultIndex}>{i + 1}</span>
-              <div className={styles.resultBalls}>
-                {set.map((n) => (
-                  <span key={n} className={styles.ball} style={{ backgroundColor: getBallColor(n) }}>
-                    {n}
-                  </span>
-                ))}
-              </div>
+
+          {!numbers ? (
+            <button type="button" className={styles.generateButton} onClick={handleGenerateNumbers}>
+              번호 뽑기
+            </button>
+          ) : (
+            <div className={styles.numbersRow}>
+              {numbers.map((n) => (
+                <span key={n} className={styles.ball} style={{ backgroundColor: getBallColor(n) }}>
+                  {n}
+                </span>
+              ))}
             </div>
-          ))}
+          )}
+
+          <button type="button" className={styles.resetButton} onClick={handleReset}>
+            다시 뽑기
+          </button>
         </div>
       )}
     </div>
