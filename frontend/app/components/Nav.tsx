@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/", label: "홈" },
   { href: "/stats", label: "통계" },
   { href: "/draws", label: "회차조회" },
+  { href: "/tarot", label: "타로" },
   { href: "/collect", label: "수집하기" },
 ];
 
