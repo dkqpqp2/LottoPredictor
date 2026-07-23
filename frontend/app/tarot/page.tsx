@@ -24,6 +24,8 @@ export default function TarotPage() {
   const [selected, setSelected] = useState<TarotCard | null>(null);
   const [direction, setDirection] = useState<CardDirection | null>(null);
   const [numbers, setNumbers] = useState<number[] | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const dragStart = useRef<{ x: number; y: number } | null>(null);
 
@@ -62,7 +64,20 @@ export default function TarotPage() {
   }
 
   function handlePointerDown(e: React.PointerEvent) {
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // pointer capture is best-effort (keeps the drag working on touch devices
+      // even if capture isn't available); the drag logic below doesn't depend on it.
+    }
     dragStart.current = { x: e.clientX, y: e.clientY };
+    setIsDragging(true);
+    setDragOffset({ x: 0, y: 0 });
+  }
+
+  function handlePointerMove(e: React.PointerEvent) {
+    if (!dragStart.current) return;
+    setDragOffset({ x: e.clientX - dragStart.current.x, y: e.clientY - dragStart.current.y });
   }
 
   function handlePointerUp(e: React.PointerEvent) {
@@ -71,10 +86,15 @@ export default function TarotPage() {
     const dy = e.clientY - dragStart.current.y;
     const detected = detectDragDirection(dx, dy);
     dragStart.current = null;
+    setIsDragging(false);
     if (detected) {
       setDirection(detected);
+    } else {
+      setDragOffset({ x: 0, y: 0 });
     }
   }
+
+  const previewDirection = isDragging ? detectDragDirection(dragOffset.x, dragOffset.y, 15) : null;
 
   function handleGenerateNumbers() {
     if (!selected || !direction || !zodiac) return;
@@ -86,6 +106,8 @@ export default function TarotPage() {
     setSelected(null);
     setDirection(null);
     setNumbers(null);
+    setIsDragging(false);
+    setDragOffset({ x: 0, y: 0 });
   }
 
   const fortuneText = useMemo(() => {
@@ -195,17 +217,21 @@ export default function TarotPage() {
         <div className={styles.revealWrapper}>
           <p className={styles.hint}>카드를 원하는 방향으로 드래그해서 뒤집어 보세요.</p>
           <div
-            className={styles.dragCard}
+            className={`${styles.dragCard} ${!isDragging ? styles.dragCardSnap : ""}`}
+            style={{
+              transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) rotate(${dragOffset.x * 0.05}deg)`,
+            }}
             onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
           >
             <span className={styles.cardBackSymbol}>✦</span>
           </div>
           <div className={styles.directionHints}>
-            <span>↑ 위</span>
-            <span>↓ 아래</span>
-            <span>← 왼쪽</span>
-            <span>→ 오른쪽</span>
+            <span className={previewDirection === "up" ? styles.directionHintActive : ""}>↑ 위</span>
+            <span className={previewDirection === "down" ? styles.directionHintActive : ""}>↓ 아래</span>
+            <span className={previewDirection === "left" ? styles.directionHintActive : ""}>← 왼쪽</span>
+            <span className={previewDirection === "right" ? styles.directionHintActive : ""}>→ 오른쪽</span>
           </div>
         </div>
       )}

@@ -229,10 +229,15 @@
   cursor: grab;
   touch-action: none;
   user-select: none;
+  box-shadow: 0 0 24px rgba(224, 184, 79, 0.15);
 }
 
 .dragCard:active {
   cursor: grabbing;
+}
+
+.dragCardSnap {
+  transition: transform 0.25s ease;
 }
 
 .directionHints {
@@ -240,6 +245,11 @@
   gap: 1.25rem;
   font-size: 0.8rem;
   color: var(--cosmic-text-secondary);
+}
+
+.directionHintActive {
+  color: var(--cosmic-gold);
+  font-weight: 700;
 }
 
 .resultCard {
