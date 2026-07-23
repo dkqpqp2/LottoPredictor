@@ -25,7 +25,7 @@ function isInDirectionRange(n: number, direction: CardDirection, seed: number): 
 }
 
 /** Index 0 is unused; weights live at indexes 1..45 to match lotto numbers directly. */
-export function buildWeights(card: TarotCard, zodiac: ZodiacSign, direction: CardDirection): number[] {
+export function buildWeights(card: TarotCard, zodiac: ZodiacSign | null, direction: CardDirection): number[] {
   const weights = new Array(MAX_NUMBER + 1).fill(0);
   for (let n = MIN_NUMBER; n <= MAX_NUMBER; n++) {
     weights[n] = 1;
@@ -36,8 +36,10 @@ export function buildWeights(card: TarotCard, zodiac: ZodiacSign, direction: Car
     if (n >= MIN_NUMBER && n <= MAX_NUMBER) weights[n] += CARD_SEED_WEIGHT;
   }
 
-  for (const n of zodiac.luckyNumbers) {
-    if (n >= MIN_NUMBER && n <= MAX_NUMBER) weights[n] += ZODIAC_WEIGHT;
+  if (zodiac) {
+    for (const n of zodiac.luckyNumbers) {
+      if (n >= MIN_NUMBER && n <= MAX_NUMBER) weights[n] += ZODIAC_WEIGHT;
+    }
   }
 
   for (let n = MIN_NUMBER; n <= MAX_NUMBER; n++) {
@@ -69,7 +71,7 @@ export function weightedSampleWithoutReplacement(weights: number[], count: numbe
   return picked;
 }
 
-export function generateTarotNumbers(card: TarotCard, zodiac: ZodiacSign, direction: CardDirection): number[] {
+export function generateTarotNumbers(card: TarotCard, zodiac: ZodiacSign | null, direction: CardDirection): number[] {
   const weights = buildWeights(card, zodiac, direction);
   return weightedSampleWithoutReplacement(weights, 6).sort((a, b) => a - b);
 }

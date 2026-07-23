@@ -62,6 +62,20 @@ describe("buildWeights", () => {
       expect(weights[n]).toBeGreaterThan(0);
     }
   });
+
+  it("still boosts the card's seed number when no zodiac is given", () => {
+    const weights = buildWeights(star, null, "down");
+    expect(weights[17]).toBeGreaterThanOrEqual(1 + 8);
+    expect(weights[39]).toBeGreaterThanOrEqual(1 + 8);
+  });
+
+  it("does not boost any number for the zodiac's lucky numbers when no zodiac is given", () => {
+    const withZodiac = buildWeights(star, aries, "down");
+    const withoutZodiac = buildWeights(star, null, "down");
+    for (const n of aries.luckyNumbers) {
+      expect(withoutZodiac[n]).toBeLessThan(withZodiac[n]);
+    }
+  });
 });
 
 describe("weightedSampleWithoutReplacement", () => {
@@ -98,6 +112,18 @@ describe("generateTarotNumbers", () => {
       expect(numbers).toHaveLength(6);
       expect(new Set(numbers).size).toBe(6);
       expect(numbers).toEqual([...numbers].sort((a, b) => a - b));
+      for (const n of numbers) {
+        expect(n).toBeGreaterThanOrEqual(1);
+        expect(n).toBeLessThanOrEqual(45);
+      }
+    }
+  });
+
+  it("still works with no zodiac (birthdate optional)", () => {
+    for (let i = 0; i < 50; i++) {
+      const numbers = generateTarotNumbers(star, null, "up");
+      expect(numbers).toHaveLength(6);
+      expect(new Set(numbers).size).toBe(6);
       for (const n of numbers) {
         expect(n).toBeGreaterThanOrEqual(1);
         expect(n).toBeLessThanOrEqual(45);

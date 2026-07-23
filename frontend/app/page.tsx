@@ -97,7 +97,7 @@ export default function Home() {
   const previewDirection = isDragging ? detectDragDirection(dragOffset.x, dragOffset.y, 15) : null;
 
   function handleGenerateNumbers() {
-    if (!selected || !direction || !zodiac) return;
+    if (!selected || !direction) return;
     setNumbers(generateTarotNumbers(selected, zodiac, direction));
   }
 
@@ -120,14 +120,14 @@ export default function Home() {
       <section className={styles.hero}>
         <h1 className={styles.title}>타로 운세 번호</h1>
         <p className={styles.subtitle}>
-          카드 한 장과 별자리로 오늘의 이야기를 만들어 보세요.
+          카드 한 장으로 오늘의 이야기를 만들어 보세요.
           <br />
           실제 운세를 예측하는 것은 아니며, 재미로 참고해 주세요.
         </p>
       </section>
 
       <div className={styles.card}>
-        <span className={styles.fieldLabel}>생년월일</span>
+        <span className={styles.fieldLabel}>생년월일 (선택 · 입력하면 별자리 운도 함께 봐요)</span>
         <select
           aria-label="출생 연도"
           className={styles.yearSelect}
@@ -194,7 +194,7 @@ export default function Home() {
         {zodiac && <p className={styles.zodiacResult}>당신의 별자리는 {zodiac.name}입니다.</p>}
       </div>
 
-      {zodiac && !selected && (
+      {!selected && (
         <div className={styles.spreadWrapper}>
           <p className={styles.hint}>카드 한 장을 골라주세요.</p>
           <div className={styles.spread}>
@@ -253,9 +253,14 @@ export default function Home() {
           )}
 
           {!numbers ? (
-            <button type="button" className={styles.generateButton} onClick={handleGenerateNumbers}>
-              번호 뽑기
-            </button>
+            <>
+              <button type="button" className={styles.generateButton} onClick={handleGenerateNumbers}>
+                번호 뽑기
+              </button>
+              {!zodiac && (
+                <p className={styles.hint}>생년월일을 입력하면 별자리 운도 함께 반영돼요.</p>
+              )}
+            </>
           ) : (
             <div className={styles.numbersRow}>
               {numbers.map((n) => (
