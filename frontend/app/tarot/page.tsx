@@ -8,16 +8,18 @@ import { detectDragDirection } from "../../lib/dragDirection";
 import { generateTarotNumbers } from "../../lib/tarotNumberGenerator";
 import { getZodiacSign, type ZodiacSign } from "../../lib/zodiac";
 
-function parseBirthDate(value: string): Date | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) return null;
-  const [, y, m, d] = match;
-  return new Date(Number(y), Number(m) - 1, Number(d));
+const CURRENT_YEAR = new Date().getFullYear();
+const YEAR_OPTIONS = Array.from({ length: 100 }, (_, i) => CURRENT_YEAR - i);
+const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => i + 1);
+
+function daysInMonth(year: number, month: number): number {
+  return new Date(year, month, 0).getDate();
 }
 
 export default function TarotPage() {
-  const [birthDateInput, setBirthDateInput] = useState("");
-  const [zodiac, setZodiac] = useState<ZodiacSign | null>(null);
+  const [year, setYear] = useState<number | "">("");
+  const [month, setMonth] = useState<number | "">("");
+  const [day, setDay] = useState<number | "">("");
   const [spread, setSpread] = useState<TarotCard[]>(() => shuffleCards(TAROT_CARDS));
   const [selected, setSelected] = useState<TarotCard | null>(null);
   const [direction, setDirection] = useState<CardDirection | null>(null);
@@ -25,11 +27,16 @@ export default function TarotPage() {
 
   const dragStart = useRef<{ x: number; y: number } | null>(null);
 
-  function handleBirthDateChange(value: string) {
-    setBirthDateInput(value);
-    const date = parseBirthDate(value);
-    setZodiac(date ? getZodiacSign(date) : null);
-  }
+  const dayOptions = useMemo(() => {
+    const maxDay = year && month ? daysInMonth(year, month) : 31;
+    return Array.from({ length: maxDay }, (_, i) => i + 1);
+  }, [year, month]);
+
+  const zodiac: ZodiacSign | null = useMemo(() => {
+    if (!year || !month || !day) return null;
+    const clampedDay = Math.min(day, daysInMonth(year, month));
+    return getZodiacSign(new Date(year, month - 1, clampedDay));
+  }, [year, month, day]);
 
   function handleCardClick(card: TarotCard) {
     if (selected) return;
@@ -80,16 +87,48 @@ export default function TarotPage() {
       </section>
 
       <div className={styles.card}>
-        <label className={styles.fieldLabel} htmlFor="birthDate">
-          생년월일
-        </label>
-        <input
-          id="birthDate"
-          type="date"
-          className={styles.dateInput}
-          value={birthDateInput}
-          onChange={(e) => handleBirthDateChange(e.target.value)}
-        />
+        <span className={styles.fieldLabel}>생년월일</span>
+        <div className={styles.dateSelectRow}>
+          <select
+            aria-label="출생 연도"
+            className={styles.dateSelect}
+            value={year}
+            onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}
+          >
+            <option value="">년도</option>
+            {YEAR_OPTIONS.map((y) => (
+              <option key={y} value={y}>
+                {y}년
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label="출생 월"
+            className={styles.dateSelect}
+            value={month}
+            onChange={(e) => setMonth(e.target.value ? Number(e.target.value) : "")}
+          >
+            <option value="">월</option>
+            {MONTH_OPTIONS.map((m) => (
+              <option key={m} value={m}>
+                {m}월
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label="출생 일"
+            className={styles.dateSelect}
+            value={day}
+            onChange={(e) => setDay(e.target.value ? Number(e.target.value) : "")}
+          >
+            <option value="">일</option>
+            {dayOptions.map((d) => (
+              <option key={d} value={d}>
+                {d}일
+              </option>
+            ))}
+          </select>
+        </div>
         {zodiac && <p className={styles.zodiacResult}>당신의 별자리는 {zodiac.name}입니다.</p>}
       </div>
 

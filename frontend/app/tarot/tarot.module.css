@@ -65,17 +65,24 @@
   color: var(--cosmic-text-secondary);
 }
 
-.dateInput {
-  padding: 0.6rem 0.85rem;
+.dateSelectRow {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.dateSelect {
+  flex: 1;
+  padding: 0.6rem 0.7rem;
   border: 1px solid var(--cosmic-border);
   border-radius: 10px;
   background: var(--cosmic-bg);
   color: var(--cosmic-text);
   font-size: 0.9rem;
   color-scheme: dark;
+  cursor: pointer;
 }
 
-.dateInput:focus {
+.dateSelect:focus {
   outline: none;
   border-color: var(--cosmic-gold);
 }
