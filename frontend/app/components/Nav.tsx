@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./Nav.module.css";
+import { useAuth } from "../contexts/AuthContext";
+import { getKakaoAuthorizeUrl } from "../../lib/auth";
 
 const LINKS = [
   { href: "/", label: "홈" },
@@ -14,6 +16,7 @@ const LINKS = [
 
 export default function Nav() {
   const pathname = usePathname();
+  const { auth, logout } = useAuth();
 
   return (
     <nav className={styles.nav}>
@@ -30,6 +33,18 @@ export default function Nav() {
           {link.label}
         </Link>
       ))}
+      {auth ? (
+        <div className={styles.authSection}>
+          <span className={styles.authNickname}>{auth.nickname}님</span>
+          <button type="button" className={styles.logoutButton} onClick={logout}>
+            로그아웃
+          </button>
+        </div>
+      ) : (
+        <a href={getKakaoAuthorizeUrl()} className={styles.loginLink}>
+          로그인
+        </a>
+      )}
     </nav>
   );
 }

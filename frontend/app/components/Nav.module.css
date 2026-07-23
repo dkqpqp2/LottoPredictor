@@ -52,3 +52,47 @@
   color: var(--accent-foreground);
   background: var(--accent-hover);
 }
+
+.authSection {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: 0.4rem;
+}
+
+.authNickname {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.logoutButton {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.logoutButton:hover {
+  color: var(--foreground);
+  background: var(--surface-hover);
+}
+
+.loginLink {
+  margin-left: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent-foreground);
+  background: var(--accent);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  transition: background-color 0.15s ease;
+}
+
+.loginLink:hover {
+  background: var(--accent-hover);
+}
