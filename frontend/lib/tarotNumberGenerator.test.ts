@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   buildWeights,
+  buildWeightsForPicks,
   cardSeedNumber,
   generateTarotNumbers,
+  generateTarotNumbersForPicks,
   weightedSampleWithoutReplacement,
 } from "./tarotNumberGenerator";
 import { TAROT_CARDS } from "./tarotCards";
@@ -10,6 +12,8 @@ import { ZODIAC_SIGNS } from "./zodiac";
 
 const star = TAROT_CARDS.find((c) => c.nameEn === "The Star")!; // number 17
 const fool = TAROT_CARDS.find((c) => c.nameEn === "The Fool")!; // number 0
+const magician = TAROT_CARDS.find((c) => c.nameEn === "The Magician")!; // number 1
+const world = TAROT_CARDS.find((c) => c.nameEn === "The World")!; // number 21
 const aries = ZODIAC_SIGNS.find((z) => z.id === "aries")!; // luckyNumbers [9, 18, 27]
 
 describe("cardSeedNumber", () => {
@@ -124,6 +128,47 @@ describe("generateTarotNumbers", () => {
       const numbers = generateTarotNumbers(star, null, "up");
       expect(numbers).toHaveLength(6);
       expect(new Set(numbers).size).toBe(6);
+      for (const n of numbers) {
+        expect(n).toBeGreaterThanOrEqual(1);
+        expect(n).toBeLessThanOrEqual(45);
+      }
+    }
+  });
+});
+
+describe("buildWeightsForPicks", () => {
+  it("combines the seed-number boost from every pick in the spread", () => {
+    const picks = [
+      { card: fool, direction: "down" as const }, // seed 22 -> 22, 44
+      { card: magician, direction: "down" as const }, // seed 1 -> 1, 23
+      { card: world, direction: "down" as const }, // seed 21 -> 21, 43
+    ];
+    const weights = buildWeightsForPicks(picks, null);
+
+    for (const n of [22, 44, 1, 23, 21, 43]) {
+      expect(weights[n]).toBeGreaterThanOrEqual(1 + 8);
+    }
+  });
+
+  it("matches single-card buildWeights when given exactly one pick", () => {
+    const single = buildWeights(star, aries, "up");
+    const spread = buildWeightsForPicks([{ card: star, direction: "up" }], aries);
+    expect(spread).toEqual(single);
+  });
+});
+
+describe("generateTarotNumbersForPicks", () => {
+  it("produces 6 unique sorted numbers within 1-45 across many runs", () => {
+    const picks = [
+      { card: fool, direction: "up" as const },
+      { card: magician, direction: "down" as const },
+      { card: world, direction: "left" as const },
+    ];
+    for (let i = 0; i < 50; i++) {
+      const numbers = generateTarotNumbersForPicks(picks, null);
+      expect(numbers).toHaveLength(6);
+      expect(new Set(numbers).size).toBe(6);
+      expect(numbers).toEqual([...numbers].sort((a, b) => a - b));
       for (const n of numbers) {
         expect(n).toBeGreaterThanOrEqual(1);
         expect(n).toBeLessThanOrEqual(45);

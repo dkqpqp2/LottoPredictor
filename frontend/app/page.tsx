@@ -6,7 +6,7 @@ import styles from "./page.module.css";
 import { getBallColor } from "../lib/lottoBall";
 import { DIRECTION_LABELS, TAROT_CARDS, shuffleCards, type CardDirection, type TarotCard } from "../lib/tarotCards";
 import { detectDragDirection } from "../lib/dragDirection";
-import { generateTarotNumbers } from "../lib/tarotNumberGenerator";
+import { generateTarotNumbers, generateTarotNumbersForPicks, type CardPick } from "../lib/tarotNumberGenerator";
 import { getZodiacSign, type ZodiacSign } from "../lib/zodiac";
 import LottoDrawAnimation from "./components/LottoDrawAnimation";
 
@@ -15,6 +15,14 @@ const YEAR_OPTIONS = Array.from({ length: 100 }, (_, i) => CURRENT_YEAR - i);
 const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 
 type ViewMode = "unset" | "tarot-only" | "with-zodiac";
+
+interface SpreadSlot {
+  card: TarotCard;
+  direction: CardDirection | null;
+}
+
+const SPREAD_POSITIONS = ["과거", "현재", "미래"];
+const SPREAD_SIZE = SPREAD_POSITIONS.length;
 
 function daysInMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate();
@@ -25,9 +33,15 @@ export default function Home() {
   const [year, setYear] = useState<number | "">("");
   const [month, setMonth] = useState(1);
   const [day, setDay] = useState<number | null>(null);
-  const [spread, setSpread] = useState<TarotCard[]>(() => shuffleCards(TAROT_CARDS));
+  const [deck, setDeck] = useState<TarotCard[]>(() => shuffleCards(TAROT_CARDS));
+
+  // "with-zodiac" mode: single card pick
   const [selected, setSelected] = useState<TarotCard | null>(null);
   const [direction, setDirection] = useState<CardDirection | null>(null);
+
+  // "tarot-only" mode: 3-card spread (과거/현재/미래)
+  const [spreadSlots, setSpreadSlots] = useState<SpreadSlot[]>([]);
+
   const [numbers, setNumbers] = useState<number[] | null>(null);
   const [pendingNumbers, setPendingNumbers] = useState<number[] | null>(null);
   const [animating, setAnimating] = useState(false);
@@ -65,9 +79,25 @@ export default function Home() {
     setDay(null);
   }
 
+  // the card currently in the "drag to reveal" step, regardless of mode
+  const revealingCard =
+    viewMode === "with-zodiac"
+      ? selected && !direction
+        ? selected
+        : null
+      : spreadSlots.length > 0 && spreadSlots[spreadSlots.length - 1].direction === null
+        ? spreadSlots[spreadSlots.length - 1].card
+        : null;
+
   function handleCardClick(card: TarotCard) {
-    if (selected) return;
-    setSelected(card);
+    if (viewMode === "with-zodiac") {
+      if (selected) return;
+      setSelected(card);
+    } else if (viewMode === "tarot-only") {
+      if (spreadSlots.length >= SPREAD_SIZE || revealingCard) return;
+      setSpreadSlots((prev) => [...prev, { card, direction: null }]);
+      setDeck((prev) => prev.filter((c) => c.number !== card.number));
+    }
   }
 
   function handlePointerDown(e: React.PointerEvent) {
@@ -88,24 +118,40 @@ export default function Home() {
   }
 
   function handlePointerUp(e: React.PointerEvent) {
-    if (!dragStart.current || direction) return;
+    if (!dragStart.current || !revealingCard) return;
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
     const detected = detectDragDirection(dx, dy);
     dragStart.current = null;
     setIsDragging(false);
-    if (detected) {
+    if (!detected) {
+      setDragOffset({ x: 0, y: 0 });
+      return;
+    }
+    if (viewMode === "with-zodiac") {
       setDirection(detected);
     } else {
-      setDragOffset({ x: 0, y: 0 });
+      setSpreadSlots((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { ...updated[updated.length - 1], direction: detected };
+        return updated;
+      });
     }
   }
 
   const previewDirection = isDragging ? detectDragDirection(dragOffset.x, dragOffset.y, 15) : null;
 
+  const spreadReady = spreadSlots.length === SPREAD_SIZE && spreadSlots.every((s) => s.direction !== null);
+
   function handleGenerateNumbers() {
-    if (!selected || !direction) return;
-    setPendingNumbers(generateTarotNumbers(selected, zodiac, direction));
+    if (viewMode === "with-zodiac") {
+      if (!selected || !direction) return;
+      setPendingNumbers(generateTarotNumbers(selected, zodiac, direction));
+    } else {
+      if (!spreadReady) return;
+      const picks = spreadSlots as CardPick[];
+      setPendingNumbers(generateTarotNumbersForPicks(picks, null));
+    }
     setAnimating(true);
   }
 
@@ -116,9 +162,10 @@ export default function Home() {
   }
 
   function handleReset() {
-    setSpread(shuffleCards(TAROT_CARDS));
+    setDeck(shuffleCards(TAROT_CARDS));
     setSelected(null);
     setDirection(null);
+    setSpreadSlots([]);
     setNumbers(null);
     setPendingNumbers(null);
     setAnimating(false);
@@ -139,12 +186,19 @@ export default function Home() {
     return selected.fortunes[direction];
   }, [selected, direction]);
 
+  const nextPositionLabel =
+    viewMode === "tarot-only" && !revealingCard && spreadSlots.length < SPREAD_SIZE
+      ? SPREAD_POSITIONS[spreadSlots.length]
+      : null;
+  const revealingPositionLabel =
+    viewMode === "tarot-only" && revealingCard ? SPREAD_POSITIONS[spreadSlots.length - 1] : null;
+
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
         <h1 className={styles.title}>타로 운세 번호</h1>
         <p className={styles.subtitle}>
-          카드 한 장으로 오늘의 이야기를 만들어 보세요.
+          카드로 오늘의 이야기를 만들어 보세요.
           <br />
           실제 운세를 예측하는 것은 아니며, 재미로 참고해 주세요.
         </p>
@@ -168,80 +222,80 @@ export default function Home() {
       )}
 
       {viewMode === "with-zodiac" && (
-      <div className={styles.card}>
-        <span className={styles.fieldLabel}>생년월일</span>
-        <select
-          aria-label="출생 연도"
-          className={styles.yearSelect}
-          value={year}
-          onChange={(e) => handleYearChange(e.target.value)}
-        >
-          <option value="">년도 선택</option>
-          {YEAR_OPTIONS.map((y) => (
-            <option key={y} value={y}>
-              {y}년
-            </option>
-          ))}
-        </select>
+        <div className={styles.card}>
+          <span className={styles.fieldLabel}>생년월일</span>
+          <select
+            aria-label="출생 연도"
+            className={styles.yearSelect}
+            value={year}
+            onChange={(e) => handleYearChange(e.target.value)}
+          >
+            <option value="">년도 선택</option>
+            {YEAR_OPTIONS.map((y) => (
+              <option key={y} value={y}>
+                {y}년
+              </option>
+            ))}
+          </select>
 
-        {year && (
-          <div className={styles.calendar}>
-            <div className={styles.calendarHeader}>
-              <button
-                type="button"
-                className={styles.calendarNav}
-                onClick={handlePrevMonth}
-                disabled={month === 1}
-                aria-label="이전 달"
-              >
-                ‹
-              </button>
-              <span className={styles.calendarTitle}>
-                {year}년 {month}월
-              </span>
-              <button
-                type="button"
-                className={styles.calendarNav}
-                onClick={handleNextMonth}
-                disabled={month === 12}
-                aria-label="다음 달"
-              >
-                ›
-              </button>
-            </div>
-            <div className={styles.calendarGrid}>
-              {WEEKDAY_LABELS.map((w) => (
-                <span key={w} className={styles.calendarWeekday}>
-                  {w}
+          {year && (
+            <div className={styles.calendar}>
+              <div className={styles.calendarHeader}>
+                <button
+                  type="button"
+                  className={styles.calendarNav}
+                  onClick={handlePrevMonth}
+                  disabled={month === 1}
+                  aria-label="이전 달"
+                >
+                  ‹
+                </button>
+                <span className={styles.calendarTitle}>
+                  {year}년 {month}월
                 </span>
-              ))}
-              {calendarCells.map((d, i) =>
-                d === null ? (
-                  <span key={`blank-${i}`} />
-                ) : (
-                  <button
-                    key={d}
-                    type="button"
-                    className={`${styles.calendarDay} ${day === d ? styles.calendarDaySelected : ""}`}
-                    onClick={() => setDay(d)}
-                  >
-                    {d}
-                  </button>
-                )
-              )}
+                <button
+                  type="button"
+                  className={styles.calendarNav}
+                  onClick={handleNextMonth}
+                  disabled={month === 12}
+                  aria-label="다음 달"
+                >
+                  ›
+                </button>
+              </div>
+              <div className={styles.calendarGrid}>
+                {WEEKDAY_LABELS.map((w) => (
+                  <span key={w} className={styles.calendarWeekday}>
+                    {w}
+                  </span>
+                ))}
+                {calendarCells.map((d, i) =>
+                  d === null ? (
+                    <span key={`blank-${i}`} />
+                  ) : (
+                    <button
+                      key={d}
+                      type="button"
+                      className={`${styles.calendarDay} ${day === d ? styles.calendarDaySelected : ""}`}
+                      onClick={() => setDay(d)}
+                    >
+                      {d}
+                    </button>
+                  )
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {zodiac && <p className={styles.zodiacResult}>당신의 별자리는 {zodiac.name}입니다.</p>}
-      </div>
+          {zodiac && <p className={styles.zodiacResult}>당신의 별자리는 {zodiac.name}입니다.</p>}
+        </div>
       )}
 
-      {viewMode !== "unset" && !selected && (viewMode === "tarot-only" || zodiac) && (
+      {viewMode === "with-zodiac" && !selected && zodiac && (
         <div className={styles.spreadWrapper}>
           <p className={styles.hint}>카드 한 장을 골라주세요.</p>
           <div className={styles.spread}>
-            {spread.map((card, i) => (
+            {deck.map((card, i) => (
               <button
                 key={card.number}
                 type="button"
@@ -256,9 +310,33 @@ export default function Home() {
         </div>
       )}
 
-      {selected && !direction && (
+      {viewMode === "tarot-only" && nextPositionLabel && (
+        <div className={styles.spreadWrapper}>
+          <p className={styles.hint}>
+            "{nextPositionLabel}" 카드를 골라주세요. ({spreadSlots.length + 1}/{SPREAD_SIZE})
+          </p>
+          <div className={styles.spread}>
+            {deck.map((card, i) => (
+              <button
+                key={card.number}
+                type="button"
+                className={styles.cardBack}
+                onClick={() => handleCardClick(card)}
+                aria-label={`카드 ${i + 1}`}
+              >
+                <span className={styles.cardBackSymbol}>✦</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {revealingCard && (
         <div className={styles.revealWrapper}>
-          <p className={styles.hint}>카드를 원하는 방향으로 드래그해서 뒤집어 보세요.</p>
+          <p className={styles.hint}>
+            {revealingPositionLabel && `"${revealingPositionLabel}" `}
+            카드를 원하는 방향으로 드래그해서 뒤집어 보세요.
+          </p>
           <div
             className={`${styles.dragCard} ${!isDragging ? styles.dragCardSnap : ""}`}
             style={{
@@ -279,7 +357,7 @@ export default function Home() {
         </div>
       )}
 
-      {selected && direction && (
+      {viewMode === "with-zodiac" && selected && direction && (
         <div className={styles.resultCard}>
           <Image
             src={`/tarot/${selected.number}.jpg`}
@@ -308,10 +386,58 @@ export default function Home() {
               <button type="button" className={styles.generateButton} onClick={handleGenerateNumbers}>
                 번호 뽑기
               </button>
-              {viewMode === "with-zodiac" && !zodiac && (
-                <p className={styles.hint}>생년월일을 입력하면 별자리 운도 함께 반영돼요.</p>
-              )}
+              {!zodiac && <p className={styles.hint}>생년월일을 입력하면 별자리 운도 함께 반영돼요.</p>}
             </>
+          )}
+
+          {animating && pendingNumbers && (
+            <div className={styles.animationWrapper}>
+              <LottoDrawAnimation numbers={pendingNumbers} onComplete={handleNumbersDrawComplete} />
+            </div>
+          )}
+
+          {numbers && (
+            <div className={styles.numbersRow}>
+              {numbers.map((n) => (
+                <span key={n} className={styles.ball} style={{ backgroundColor: getBallColor(n) }}>
+                  {n}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <button type="button" className={styles.resetButton} onClick={handleReset}>
+            다시 뽑기
+          </button>
+        </div>
+      )}
+
+      {viewMode === "tarot-only" && spreadReady && (
+        <div className={styles.resultCard}>
+          {spreadSlots.map((slot, i) => (
+            <div key={slot.card.number} className={styles.spreadPickRow}>
+              <Image
+                src={`/tarot/${slot.card.number}.jpg`}
+                alt={`${slot.card.nameKo} (${slot.card.nameEn})`}
+                width={110}
+                height={184}
+                className={styles.cardImageSmall}
+              />
+              <div className={styles.spreadPickText}>
+                <span className={styles.positionLabel}>{SPREAD_POSITIONS[i]}</span>
+                <span className={styles.cardName}>
+                  {slot.card.nameKo} <span className={styles.cardNameEn}>({slot.card.nameEn})</span>
+                </span>
+                <span className={styles.directionLabel}>{DIRECTION_LABELS[slot.direction!]} 방향</span>
+                <p className={styles.fortuneTextSmall}>{slot.card.fortunes[slot.direction!]}</p>
+              </div>
+            </div>
+          ))}
+
+          {!numbers && !animating && (
+            <button type="button" className={styles.generateButton} onClick={handleGenerateNumbers}>
+              번호 뽑기
+            </button>
           )}
 
           {animating && pendingNumbers && (

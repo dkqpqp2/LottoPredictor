@@ -353,6 +353,47 @@
   line-height: 1.6;
 }
 
+.spreadPickRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--cosmic-border);
+}
+
+.cardImageSmall {
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(224, 184, 79, 0.2);
+  border: 1px solid var(--cosmic-gold-soft);
+  flex-shrink: 0;
+}
+
+.spreadPickText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
+}
+
+.spreadPickText .directionLabel {
+  text-align: left;
+}
+
+.positionLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cosmic-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fortuneTextSmall {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--cosmic-text);
+}
+
 .zodiacBlurb {
   text-align: center;
   font-size: 0.85rem;
