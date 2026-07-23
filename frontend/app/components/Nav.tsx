@@ -19,7 +19,7 @@ export default function Nav() {
     <nav className={styles.nav}>
       <Link href="/" className={styles.brand}>
         <span className={styles.brandDot} />
-        로또 번호 통계
+        로타로
       </Link>
       {LINKS.map((link) => (
         <Link
