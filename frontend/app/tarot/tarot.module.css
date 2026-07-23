@@ -65,13 +65,7 @@
   color: var(--cosmic-text-secondary);
 }
 
-.dateSelectRow {
-  display: flex;
-  gap: 0.6rem;
-}
-
-.dateSelect {
-  flex: 1;
+.yearSelect {
   padding: 0.6rem 0.7rem;
   border: 1px solid var(--cosmic-border);
   border-radius: 10px;
@@ -82,9 +76,89 @@
   cursor: pointer;
 }
 
-.dateSelect:focus {
+.yearSelect:focus {
   outline: none;
   border-color: var(--cosmic-gold);
+}
+
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.85rem;
+  background: var(--cosmic-bg);
+  border: 1px solid var(--cosmic-border);
+  border-radius: 12px;
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.calendarTitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--cosmic-gold);
+}
+
+.calendarNav {
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 1px solid var(--cosmic-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--cosmic-text);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.calendarNav:hover:not(:disabled) {
+  border-color: var(--cosmic-gold);
+  color: var(--cosmic-gold);
+}
+
+.calendarNav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.3rem;
+}
+
+.calendarWeekday {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cosmic-text-secondary);
+  padding-bottom: 0.2rem;
+}
+
+.calendarDay {
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 8px;
+  background: var(--cosmic-surface);
+  color: var(--cosmic-text);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.calendarDay:hover {
+  background: var(--cosmic-gold-soft);
+}
+
+.calendarDaySelected {
+  background: var(--cosmic-gold);
+  color: #241a02;
+  font-weight: 700;
 }
 
 .zodiacResult {

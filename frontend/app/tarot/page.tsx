@@ -10,7 +10,7 @@ import { getZodiacSign, type ZodiacSign } from "../../lib/zodiac";
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 100 }, (_, i) => CURRENT_YEAR - i);
-const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => i + 1);
+const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 
 function daysInMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate();
@@ -18,8 +18,8 @@ function daysInMonth(year: number, month: number): number {
 
 export default function TarotPage() {
   const [year, setYear] = useState<number | "">("");
-  const [month, setMonth] = useState<number | "">("");
-  const [day, setDay] = useState<number | "">("");
+  const [month, setMonth] = useState(1);
+  const [day, setDay] = useState<number | null>(null);
   const [spread, setSpread] = useState<TarotCard[]>(() => shuffleCards(TAROT_CARDS));
   const [selected, setSelected] = useState<TarotCard | null>(null);
   const [direction, setDirection] = useState<CardDirection | null>(null);
@@ -27,16 +27,34 @@ export default function TarotPage() {
 
   const dragStart = useRef<{ x: number; y: number } | null>(null);
 
-  const dayOptions = useMemo(() => {
-    const maxDay = year && month ? daysInMonth(year, month) : 31;
-    return Array.from({ length: maxDay }, (_, i) => i + 1);
+  const calendarCells = useMemo(() => {
+    if (!year) return [];
+    const firstWeekday = new Date(year, month - 1, 1).getDay();
+    const total = daysInMonth(year, month);
+    const blanks: null[] = Array.from({ length: firstWeekday }, () => null);
+    const days = Array.from({ length: total }, (_, i) => i + 1);
+    return [...blanks, ...days];
   }, [year, month]);
 
   const zodiac: ZodiacSign | null = useMemo(() => {
-    if (!year || !month || !day) return null;
-    const clampedDay = Math.min(day, daysInMonth(year, month));
-    return getZodiacSign(new Date(year, month - 1, clampedDay));
+    if (!year || !day) return null;
+    return getZodiacSign(new Date(year, month - 1, day));
   }, [year, month, day]);
+
+  function handleYearChange(value: string) {
+    setYear(value ? Number(value) : "");
+    setDay(null);
+  }
+
+  function handlePrevMonth() {
+    setMonth((m) => Math.max(1, m - 1));
+    setDay(null);
+  }
+
+  function handleNextMonth() {
+    setMonth((m) => Math.min(12, m + 1));
+    setDay(null);
+  }
 
   function handleCardClick(card: TarotCard) {
     if (selected) return;
@@ -88,47 +106,69 @@ export default function TarotPage() {
 
       <div className={styles.card}>
         <span className={styles.fieldLabel}>생년월일</span>
-        <div className={styles.dateSelectRow}>
-          <select
-            aria-label="출생 연도"
-            className={styles.dateSelect}
-            value={year}
-            onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}
-          >
-            <option value="">년도</option>
-            {YEAR_OPTIONS.map((y) => (
-              <option key={y} value={y}>
-                {y}년
-              </option>
-            ))}
-          </select>
-          <select
-            aria-label="출생 월"
-            className={styles.dateSelect}
-            value={month}
-            onChange={(e) => setMonth(e.target.value ? Number(e.target.value) : "")}
-          >
-            <option value="">월</option>
-            {MONTH_OPTIONS.map((m) => (
-              <option key={m} value={m}>
-                {m}월
-              </option>
-            ))}
-          </select>
-          <select
-            aria-label="출생 일"
-            className={styles.dateSelect}
-            value={day}
-            onChange={(e) => setDay(e.target.value ? Number(e.target.value) : "")}
-          >
-            <option value="">일</option>
-            {dayOptions.map((d) => (
-              <option key={d} value={d}>
-                {d}일
-              </option>
-            ))}
-          </select>
-        </div>
+        <select
+          aria-label="출생 연도"
+          className={styles.yearSelect}
+          value={year}
+          onChange={(e) => handleYearChange(e.target.value)}
+        >
+          <option value="">년도 선택</option>
+          {YEAR_OPTIONS.map((y) => (
+            <option key={y} value={y}>
+              {y}년
+            </option>
+          ))}
+        </select>
+
+        {year && (
+          <div className={styles.calendar}>
+            <div className={styles.calendarHeader}>
+              <button
+                type="button"
+                className={styles.calendarNav}
+                onClick={handlePrevMonth}
+                disabled={month === 1}
+                aria-label="이전 달"
+              >
+                ‹
+              </button>
+              <span className={styles.calendarTitle}>
+                {year}년 {month}월
+              </span>
+              <button
+                type="button"
+                className={styles.calendarNav}
+                onClick={handleNextMonth}
+                disabled={month === 12}
+                aria-label="다음 달"
+              >
+                ›
+              </button>
+            </div>
+            <div className={styles.calendarGrid}>
+              {WEEKDAY_LABELS.map((w) => (
+                <span key={w} className={styles.calendarWeekday}>
+                  {w}
+                </span>
+              ))}
+              {calendarCells.map((d, i) =>
+                d === null ? (
+                  <span key={`blank-${i}`} />
+                ) : (
+                  <button
+                    key={d}
+                    type="button"
+                    className={`${styles.calendarDay} ${day === d ? styles.calendarDaySelected : ""}`}
+                    onClick={() => setDay(d)}
+                  >
+                    {d}
+                  </button>
+                )
+              )}
+            </div>
+          </div>
+        )}
+
         {zodiac && <p className={styles.zodiacResult}>당신의 별자리는 {zodiac.name}입니다.</p>}
       </div>
 
