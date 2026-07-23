@@ -124,8 +124,8 @@ export default function Home() {
     const detected = detectDragDirection(dx, dy);
     dragStart.current = null;
     setIsDragging(false);
+    setDragOffset({ x: 0, y: 0 });
     if (!detected) {
-      setDragOffset({ x: 0, y: 0 });
       return;
     }
     if (viewMode === "with-zodiac") {
