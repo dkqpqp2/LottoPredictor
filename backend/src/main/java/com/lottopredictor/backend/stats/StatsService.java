@@ -6,7 +6,12 @@ import com.lottopredictor.backend.generate.FrequencyCalculator;
 import com.lottopredictor.backend.generate.NumberWeight;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class StatsService {
@@ -29,6 +34,28 @@ public class StatsService {
                         (long) w.weight(),
                         totalDraws == 0 ? 0.0 : (w.weight() / totalDraws) * 100
                 ))
+                .toList();
+    }
+
+    public List<DuplicateDrawGroup> findDuplicateCombinations() {
+        List<LottoDraw> draws = repository.findAll();
+        Map<String, List<Integer>> numbersByCombo = new LinkedHashMap<>();
+        Map<String, List<Integer>> drawNosByCombo = new LinkedHashMap<>();
+
+        for (LottoDraw draw : draws) {
+            List<Integer> sorted = Arrays.stream(draw.numbers()).boxed().sorted().toList();
+            String key = sorted.toString();
+            numbersByCombo.putIfAbsent(key, sorted);
+            drawNosByCombo.computeIfAbsent(key, k -> new ArrayList<>()).add(draw.getDrawNo());
+        }
+
+        return drawNosByCombo.entrySet().stream()
+                .filter(entry -> entry.getValue().size() > 1)
+                .map(entry -> {
+                    List<Integer> drawNos = new ArrayList<>(entry.getValue());
+                    Collections.sort(drawNos);
+                    return new DuplicateDrawGroup(numbersByCombo.get(entry.getKey()), drawNos);
+                })
                 .toList();
     }
 }

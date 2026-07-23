@@ -29,6 +29,19 @@ export async function getStats(): Promise<NumberStat[]> {
   return res.json();
 }
 
+export interface DuplicateDrawGroup {
+  numbers: number[];
+  drawNos: number[];
+}
+
+export async function getDuplicateDraws(): Promise<DuplicateDrawGroup[]> {
+  const res = await fetch(`${API_BASE_URL}/api/duplicate-draws`);
+  if (!res.ok) {
+    throw new Error("중복 번호 조합을 불러오지 못했습니다.");
+  }
+  return res.json();
+}
+
 export interface DrawResponse {
   drawNo: number;
   drawDate: string;
