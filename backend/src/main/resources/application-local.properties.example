@@ -3,3 +3,4 @@ spring.datasource.username=postgres
 spring.datasource.password=<supabase-db-password>
 lotto.crawl-secret=<any-random-string>
 lotto.frontend-origin=http://localhost:3000
+jwt.secret=<32바이트 이상의 임의 문자열, 예: openssl rand -base64 32 결과>
