@@ -1,0 +1,101 @@
+.page {
+  --cosmic-bg: #100a2e;
+  --cosmic-surface: #1c1444;
+  --cosmic-border: #3a2b6e;
+  --cosmic-text: #ece7fb;
+  --cosmic-text-secondary: #b3a6dd;
+  --cosmic-gold: #e0b84f;
+  --cosmic-gold-soft: #4a3a1f;
+
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  min-height: 100vh;
+  background:
+    radial-gradient(1px 1px at 10% 20%, #ffffff 100%, transparent),
+    radial-gradient(1px 1px at 80% 10%, #ffffff 100%, transparent),
+    radial-gradient(1px 1px at 60% 35%, #ffffff 100%, transparent),
+    radial-gradient(1.5px 1.5px at 30% 60%, #ffffff 100%, transparent),
+    radial-gradient(1px 1px at 90% 70%, #ffffff 100%, transparent),
+    radial-gradient(1.5px 1.5px at 45% 85%, #ffffff 100%, transparent),
+    radial-gradient(1px 1px at 15% 90%, #ffffff 100%, transparent),
+    linear-gradient(160deg, #0b0730 0%, #1a103d 45%, #2a1454 100%);
+  background-color: var(--cosmic-bg);
+  color: var(--cosmic-text);
+  color-scheme: dark;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--cosmic-gold);
+  text-shadow: 0 0 18px rgba(224, 184, 79, 0.35);
+}
+
+.subtitle {
+  color: var(--cosmic-text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 26rem;
+}
+
+.ctaButton {
+  margin-top: 0.5rem;
+  padding: 0.9rem 2rem;
+  border-radius: 999px;
+  background: var(--cosmic-gold);
+  color: #241a02;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: filter 0.15s ease;
+}
+
+.ctaButton:hover {
+  filter: brightness(1.1);
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.featureCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: var(--cosmic-surface);
+  border: 1px solid var(--cosmic-border);
+  border-radius: 18px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.featureCard:hover {
+  border-color: var(--cosmic-gold);
+  background: var(--cosmic-gold-soft);
+}
+
+.featureTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--cosmic-gold);
+}
+
+.featureDescription {
+  font-size: 0.9rem;
+  color: var(--cosmic-text-secondary);
+  line-height: 1.5;
+}
