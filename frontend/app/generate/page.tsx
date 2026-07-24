@@ -17,6 +17,7 @@ import LottoDrawAnimation from "../components/LottoDrawAnimation";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
 import { getKakaoAuthorizeUrl } from "../../lib/auth";
+import { saveNumbers } from "../../lib/savedNumbers";
 
 export default function GeneratePage() {
   const { auth } = useAuth();
@@ -31,6 +32,9 @@ export default function GeneratePage() {
   const [latestDraw, setLatestDraw] = useState<DrawResponse | null>(null);
   const [weeklyPick, setWeeklyPick] = useState<WeeklyPickResult | null>(null);
   const [weeklyHistory, setWeeklyHistory] = useState<WeeklyPickResult[]>([]);
+  const [savedIndices, setSavedIndices] = useState<Set<number>>(new Set());
+  const [savingIndex, setSavingIndex] = useState<number | null>(null);
+  const [saveErrors, setSaveErrors] = useState<Record<number, string>>({});
 
   useEffect(() => {
     getDraws({ page: 0, size: 1 })
@@ -51,6 +55,8 @@ export default function GeneratePage() {
     try {
       const data = await generateNumbers(mode, sets, auth.token);
       refreshProgress();
+      setSavedIndices(new Set());
+      setSaveErrors({});
       if (sets === 1) {
         setResult(null);
         setPendingResult(data);
@@ -71,6 +77,27 @@ export default function GeneratePage() {
     setResult(pendingResult);
     setPendingResult(null);
     setAnimating(false);
+  }
+
+  async function handleSave(index: number, set: number[]) {
+    if (!auth) return;
+    setSavingIndex(index);
+    setSaveErrors((prev) => {
+      const next = { ...prev };
+      delete next[index];
+      return next;
+    });
+    try {
+      await saveNumbers("GENERATE", set, auth.token);
+      setSavedIndices((prev) => new Set(prev).add(index));
+    } catch (err) {
+      setSaveErrors((prev) => ({
+        ...prev,
+        [index]: err instanceof Error ? err.message : "저장에 실패했습니다.",
+      }));
+    } finally {
+      setSavingIndex(null);
+    }
   }
 
   return (
@@ -248,6 +275,17 @@ export default function GeneratePage() {
                     {n}
                   </span>
                 ))}
+              </div>
+              <div className={styles.saveWrap}>
+                <button
+                  type="button"
+                  className={styles.saveButton}
+                  onClick={() => handleSave(i, set)}
+                  disabled={savedIndices.has(i) || savingIndex === i}
+                >
+                  {savedIndices.has(i) ? "저장됨" : savingIndex === i ? "저장 중..." : "저장"}
+                </button>
+                {saveErrors[i] && <p className={styles.saveError}>{saveErrors[i]}</p>}
               </div>
             </div>
           ))}
