@@ -14,8 +14,13 @@ import {
 } from "../../lib/api";
 import { getBallColor } from "../../lib/lottoBall";
 import LottoDrawAnimation from "../components/LottoDrawAnimation";
+import { useAuth } from "../contexts/AuthContext";
+import { useProgress } from "../contexts/ProgressContext";
+import { getKakaoAuthorizeUrl } from "../../lib/auth";
 
 export default function GeneratePage() {
+  const { auth } = useAuth();
+  const { progress, refreshProgress } = useProgress();
   const [mode, setMode] = useState<GenerateMode>("weighted");
   const [sets, setSets] = useState(1);
   const [result, setResult] = useState<GenerateResult | null>(null);
@@ -40,10 +45,12 @@ export default function GeneratePage() {
   }, []);
 
   async function handleGenerate() {
+    if (!auth) return;
     setLoading(true);
     setError(null);
     try {
-      const data = await generateNumbers(mode, sets);
+      const data = await generateNumbers(mode, sets, auth.token);
+      refreshProgress();
       if (sets === 1) {
         setResult(null);
         setPendingResult(data);
@@ -76,6 +83,13 @@ export default function GeneratePage() {
           실제 당첨을 예측하는 것은 아니며, 재미로 참고해 주세요.
         </p>
       </section>
+
+      {progress && (
+        <p className={styles.error}>
+          오늘 남은 번호생성 횟수: {progress.generateUsage.limit - progress.generateUsage.used}/
+          {progress.generateUsage.limit} ({progress.tier} 등급)
+        </p>
+      )}
 
       {latestDraw && (
         <div className={styles.latestCard}>
@@ -153,57 +167,66 @@ export default function GeneratePage() {
         </div>
       )}
 
-      <div className={styles.card}>
-        <div className={styles.controlsRow}>
-          <div className={styles.segmented}>
-            <button
-              type="button"
-              className={`${styles.segment} ${mode === "weighted" ? styles.segmentActive : ""}`}
-              onClick={() => setMode("weighted")}
-              disabled={animating}
-            >
-              가중치 기반
-            </button>
-            <button
-              type="button"
-              className={`${styles.segment} ${mode === "random" ? styles.segmentActive : ""}`}
-              onClick={() => setMode("random")}
-              disabled={animating}
-            >
-              완전 랜덤
-            </button>
-          </div>
-
-          <div className={styles.setsField}>
-            <span>세트 수</span>
-            <div className={styles.stepper}>
+      {auth ? (
+        <div className={styles.card}>
+          <div className={styles.controlsRow}>
+            <div className={styles.segmented}>
               <button
                 type="button"
-                className={styles.stepperButton}
-                onClick={() => setSets((s) => Math.max(1, s - 1))}
-                disabled={sets <= 1 || animating}
-                aria-label="세트 수 감소"
+                className={`${styles.segment} ${mode === "weighted" ? styles.segmentActive : ""}`}
+                onClick={() => setMode("weighted")}
+                disabled={animating}
               >
-                −
+                가중치 기반
               </button>
-              <span className={styles.stepperValue}>{sets}</span>
               <button
                 type="button"
-                className={styles.stepperButton}
-                onClick={() => setSets((s) => Math.min(10, s + 1))}
-                disabled={sets >= 10 || animating}
-                aria-label="세트 수 증가"
+                className={`${styles.segment} ${mode === "random" ? styles.segmentActive : ""}`}
+                onClick={() => setMode("random")}
+                disabled={animating}
               >
-                +
+                완전 랜덤
               </button>
             </div>
-          </div>
-        </div>
 
-        <button className={styles.generateButton} onClick={handleGenerate} disabled={loading || animating}>
-          {loading ? "생성 중..." : "번호 생성"}
-        </button>
-      </div>
+            <div className={styles.setsField}>
+              <span>세트 수</span>
+              <div className={styles.stepper}>
+                <button
+                  type="button"
+                  className={styles.stepperButton}
+                  onClick={() => setSets((s) => Math.max(1, s - 1))}
+                  disabled={sets <= 1 || animating}
+                  aria-label="세트 수 감소"
+                >
+                  −
+                </button>
+                <span className={styles.stepperValue}>{sets}</span>
+                <button
+                  type="button"
+                  className={styles.stepperButton}
+                  onClick={() => setSets((s) => Math.min(10, s + 1))}
+                  disabled={sets >= 10 || animating}
+                  aria-label="세트 수 증가"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button className={styles.generateButton} onClick={handleGenerate} disabled={loading || animating}>
+            {loading ? "생성 중..." : "번호 생성"}
+          </button>
+        </div>
+      ) : (
+        <div className={styles.card}>
+          <p className={styles.error}>번호 생성을 이용하려면 로그인이 필요해요.</p>
+          <a href={getKakaoAuthorizeUrl()} className={styles.generateButton}>
+            카카오로 로그인
+          </a>
+        </div>
+      )}
 
       {error && <p className={styles.error}>{error}</p>}
 
