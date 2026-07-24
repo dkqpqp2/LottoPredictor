@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
@@ -22,6 +23,15 @@ public class User {
 
     @Column(name = "nickname", nullable = false)
     private String nickname;
+
+    @Column(name = "total_points", nullable = false)
+    private int totalPoints;
+
+    @Column(name = "current_streak", nullable = false)
+    private int currentStreak;
+
+    @Column(name = "last_active_date")
+    private LocalDate lastActiveDate;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
@@ -46,11 +56,35 @@ public class User {
         return nickname;
     }
 
+    public int getTotalPoints() {
+        return totalPoints;
+    }
+
+    public int getCurrentStreak() {
+        return currentStreak;
+    }
+
+    public LocalDate getLastActiveDate() {
+        return lastActiveDate;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void addPoints(int amount) {
+        this.totalPoints += amount;
+    }
+
+    public void setCurrentStreak(int streak) {
+        this.currentStreak = streak;
+    }
+
+    public void setLastActiveDate(LocalDate date) {
+        this.lastActiveDate = date;
     }
 }
