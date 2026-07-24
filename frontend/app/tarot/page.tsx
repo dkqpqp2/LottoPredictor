@@ -3,12 +3,12 @@
 import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
-import { getBallColor } from "../lib/lottoBall";
-import { DIRECTION_LABELS, TAROT_CARDS, shuffleCards, type CardDirection, type TarotCard } from "../lib/tarotCards";
-import { detectDragDirection } from "../lib/dragDirection";
-import { generateTarotNumbers, generateTarotNumbersForPicks, type CardPick } from "../lib/tarotNumberGenerator";
-import { getZodiacSign, type ZodiacSign } from "../lib/zodiac";
-import LottoDrawAnimation from "./components/LottoDrawAnimation";
+import { getBallColor } from "../../lib/lottoBall";
+import { DIRECTION_LABELS, TAROT_CARDS, shuffleCards, type CardDirection, type TarotCard } from "../../lib/tarotCards";
+import { detectDragDirection } from "../../lib/dragDirection";
+import { generateTarotNumbers, generateTarotNumbersForPicks, type CardPick } from "../../lib/tarotNumberGenerator";
+import { getZodiacSign, type ZodiacSign } from "../../lib/zodiac";
+import LottoDrawAnimation from "../components/LottoDrawAnimation";
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 100 }, (_, i) => CURRENT_YEAR - i);
