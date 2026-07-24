@@ -62,6 +62,20 @@ class UsageServiceTest {
     }
 
     @Test
+    void recordVisitStartsAStreakOfOneOnTheVeryFirstVisit() {
+        User user = newUser();
+        // lastActiveDate is null (never set), simulating a brand-new user
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        UsageService service = new UsageService(userRepository, dailyUsageRepository);
+        service.recordVisit(1L);
+
+        assertThat(user.getCurrentStreak()).isEqualTo(1);
+        assertThat(user.getTotalPoints()).isEqualTo(2);
+        assertThat(user.getLastActiveDate()).isEqualTo(LocalDate.now());
+    }
+
+    @Test
     void recordVisitAwardsAttendancePointsOnlyOncePerDay() {
         User user = newUser();
         user.setLastActiveDate(LocalDate.now());
