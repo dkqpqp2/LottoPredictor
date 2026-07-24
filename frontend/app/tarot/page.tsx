@@ -13,6 +13,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
 import { consumeTarotUsage } from "../../lib/progress";
 import { getKakaoAuthorizeUrl } from "../../lib/auth";
+import { saveNumbers } from "../../lib/savedNumbers";
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 100 }, (_, i) => CURRENT_YEAR - i);
@@ -36,6 +37,9 @@ export default function Home() {
   const { auth } = useAuth();
   const { progress, refreshProgress } = useProgress();
   const [quotaError, setQuotaError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("unset");
   const [year, setYear] = useState<number | "">("");
   const [month, setMonth] = useState(1);
@@ -177,6 +181,20 @@ export default function Home() {
     setAnimating(false);
   }
 
+  async function handleSaveNumbers() {
+    if (!auth || !numbers) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await saveNumbers("TAROT", numbers, auth.token);
+      setSaved(true);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "저장에 실패했습니다.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   function handleReset() {
     setDeck(shuffleCards(TAROT_CARDS));
     setSelected(null);
@@ -187,6 +205,9 @@ export default function Home() {
     setAnimating(false);
     setIsDragging(false);
     setDragOffset({ x: 0, y: 0 });
+    setSaved(false);
+    setSaving(false);
+    setSaveError(null);
   }
 
   function handleChangeMode() {
@@ -451,6 +472,18 @@ export default function Home() {
             </div>
           )}
 
+          {numbers && (
+            <button
+              type="button"
+              className={styles.saveButton}
+              onClick={handleSaveNumbers}
+              disabled={saved || saving}
+            >
+              {saved ? "저장됨" : saving ? "저장 중..." : "저장"}
+            </button>
+          )}
+          {saveError && <p className={styles.saveError}>{saveError}</p>}
+
           <button type="button" className={styles.resetButton} onClick={handleReset}>
             다시 뽑기
           </button>
@@ -503,6 +536,18 @@ export default function Home() {
               ))}
             </div>
           )}
+
+          {numbers && (
+            <button
+              type="button"
+              className={styles.saveButton}
+              onClick={handleSaveNumbers}
+              disabled={saved || saving}
+            >
+              {saved ? "저장됨" : saving ? "저장 중..." : "저장"}
+            </button>
+          )}
+          {saveError && <p className={styles.saveError}>{saveError}</p>}
 
           <button type="button" className={styles.resetButton} onClick={handleReset}>
             다시 뽑기
