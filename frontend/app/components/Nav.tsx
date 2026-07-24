@@ -36,6 +36,12 @@ export default function Nav() {
       ))}
       {auth ? (
         <div className={styles.authSection}>
+          <Link
+            href="/mypage"
+            className={`${styles.link} ${pathname === "/mypage" ? styles.linkActive : ""}`}
+          >
+            마이페이지
+          </Link>
           <span className={styles.authNickname}>{auth.nickname}님</span>
           <button type="button" className={styles.logoutButton} onClick={logout}>
             로그아웃
