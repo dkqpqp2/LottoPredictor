@@ -9,6 +9,10 @@ import { detectDragDirection } from "../../lib/dragDirection";
 import { generateTarotNumbers, generateTarotNumbersForPicks, type CardPick } from "../../lib/tarotNumberGenerator";
 import { getZodiacSign, type ZodiacSign } from "../../lib/zodiac";
 import LottoDrawAnimation from "../components/LottoDrawAnimation";
+import { useAuth } from "../contexts/AuthContext";
+import { useProgress } from "../contexts/ProgressContext";
+import { consumeTarotUsage } from "../../lib/progress";
+import { getKakaoAuthorizeUrl } from "../../lib/auth";
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 100 }, (_, i) => CURRENT_YEAR - i);
@@ -29,6 +33,9 @@ function daysInMonth(year: number, month: number): number {
 }
 
 export default function Home() {
+  const { auth } = useAuth();
+  const { progress, refreshProgress } = useProgress();
+  const [quotaError, setQuotaError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("unset");
   const [year, setYear] = useState<number | "">("");
   const [month, setMonth] = useState(1);
@@ -143,7 +150,16 @@ export default function Home() {
 
   const spreadReady = spreadSlots.length === SPREAD_SIZE && spreadSlots.every((s) => s.direction !== null);
 
-  function handleGenerateNumbers() {
+  async function handleGenerateNumbers() {
+    if (!auth) return;
+    setQuotaError(null);
+    try {
+      await consumeTarotUsage(auth.token);
+    } catch (err) {
+      setQuotaError(err instanceof Error ? err.message : "오늘 사용 횟수를 다 쓰셨어요.");
+      return;
+    }
+    refreshProgress();
     if (viewMode === "with-zodiac") {
       if (!selected || !direction) return;
       setPendingNumbers(generateTarotNumbers(selected, zodiac, direction));
@@ -193,6 +209,27 @@ export default function Home() {
   const revealingPositionLabel =
     viewMode === "tarot-only" && revealingCard ? SPREAD_POSITIONS[spreadSlots.length - 1] : null;
 
+  if (!auth) {
+    return (
+      <div className={styles.page}>
+        <section className={styles.hero}>
+          <h1 className={styles.title}>타로 운세 번호</h1>
+          <p className={styles.subtitle}>
+            카드로 오늘의 이야기를 만들어 보세요.
+            <br />
+            실제 운세를 예측하는 것은 아니며, 재미로 참고해 주세요.
+          </p>
+        </section>
+        <div className={styles.card}>
+          <p className={styles.hint}>타로를 보려면 로그인이 필요해요.</p>
+          <a href={getKakaoAuthorizeUrl()} className={styles.generateButton}>
+            카카오로 로그인
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
@@ -203,6 +240,13 @@ export default function Home() {
           실제 운세를 예측하는 것은 아니며, 재미로 참고해 주세요.
         </p>
       </section>
+
+      {progress && (
+        <p className={styles.hint}>
+          오늘 남은 타로 횟수: {progress.tarotUsage.limit - progress.tarotUsage.used}/{progress.tarotUsage.limit} (
+          {progress.tier} 등급)
+        </p>
+      )}
 
       {viewMode === "unset" && (
         <div className={styles.modeChoice}>
@@ -386,6 +430,7 @@ export default function Home() {
               <button type="button" className={styles.generateButton} onClick={handleGenerateNumbers}>
                 번호 뽑기
               </button>
+              {quotaError && <p className={styles.hint}>{quotaError}</p>}
               {!zodiac && <p className={styles.hint}>생년월일을 입력하면 별자리 운도 함께 반영돼요.</p>}
             </>
           )}
@@ -435,9 +480,12 @@ export default function Home() {
           ))}
 
           {!numbers && !animating && (
-            <button type="button" className={styles.generateButton} onClick={handleGenerateNumbers}>
-              번호 뽑기
-            </button>
+            <>
+              <button type="button" className={styles.generateButton} onClick={handleGenerateNumbers}>
+                번호 뽑기
+              </button>
+              {quotaError && <p className={styles.hint}>{quotaError}</p>}
+            </>
           )}
 
           {animating && pendingNumbers && (
