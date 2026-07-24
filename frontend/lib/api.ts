@@ -7,8 +7,13 @@ export interface GenerateResult {
   results: number[][];
 }
 
-export async function generateNumbers(mode: GenerateMode, sets: number): Promise<GenerateResult> {
-  const res = await fetch(`${API_BASE_URL}/api/generate?mode=${mode}&sets=${sets}`);
+export async function generateNumbers(mode: GenerateMode, sets: number, token: string): Promise<GenerateResult> {
+  const res = await fetch(`${API_BASE_URL}/api/generate?mode=${mode}&sets=${sets}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 429) {
+    throw new Error("오늘 번호생성 사용 횟수를 다 쓰셨어요. 등급을 올리면 더 뽑을 수 있어요.");
+  }
   if (!res.ok) {
     throw new Error("번호 생성에 실패했습니다.");
   }
