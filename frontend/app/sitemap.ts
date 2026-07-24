@@ -4,6 +4,7 @@ const SITE_URL = "https://lotto-predictor-gilt.vercel.app";
 
 const ROUTES: { path: string; priority: number }[] = [
   { path: "", priority: 1 },
+  { path: "/tarot", priority: 0.9 },
   { path: "/generate", priority: 0.8 },
   { path: "/stats", priority: 0.8 },
   { path: "/draws", priority: 0.8 },

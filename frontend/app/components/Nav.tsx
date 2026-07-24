@@ -8,6 +8,7 @@ import { getKakaoAuthorizeUrl } from "../../lib/auth";
 
 const LINKS = [
   { href: "/", label: "홈" },
+  { href: "/tarot", label: "타로" },
   { href: "/generate", label: "번호생성" },
   { href: "/stats", label: "통계" },
   { href: "/draws", label: "회차조회" },
