@@ -1,10 +1,10 @@
 .page {
-  max-width: 480px;
+  max-width: 720px;
   margin: 0 auto;
   padding: 3rem 1.5rem 4rem;
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: 2rem;
 }
 
 .hero {
@@ -26,8 +26,24 @@
   line-height: 1.6;
 }
 
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
 .collectButton {
-  align-self: center;
+  align-self: flex-start;
   padding: 0.65rem 1.4rem;
   border: none;
   border-radius: var(--radius-sm);
@@ -57,11 +73,10 @@
 }
 
 .resultBox {
-  padding: 1.5rem;
-  background: var(--surface);
+  padding: 1.25rem;
+  background: var(--background);
   border: 1px solid var(--surface-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -111,4 +126,75 @@
 .skippedItem {
   color: var(--danger);
   font-size: 0.8rem;
+}
+
+.userList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.userRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: var(--background);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.userNickname {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.userMeta {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.userActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tierSelect {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 0.82rem;
+}
+
+.applyButton {
+  padding: 0.4rem 0.9rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+
+.applyButton:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.applyButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

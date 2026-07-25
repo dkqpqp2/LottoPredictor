@@ -43,7 +43,7 @@ public class UsageService {
 
     public boolean consume(Long userId, Feature feature) {
         User user = userRepository.findById(userId).orElseThrow();
-        Tier tier = TierPolicy.tierForPoints(user.getTotalPoints());
+        Tier tier = TierPolicy.effectiveTier(user.getForcedTier(), user.getTotalPoints());
         int limit = TierPolicy.dailyLimit(tier, feature);
 
         LocalDate today = LocalDate.now();
@@ -64,14 +64,14 @@ public class UsageService {
 
     public ProgressResponse getProgress(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
-        Tier tier = TierPolicy.tierForPoints(user.getTotalPoints());
+        Tier tier = TierPolicy.effectiveTier(user.getForcedTier(), user.getTotalPoints());
         LocalDate today = LocalDate.now();
         int tarotUsed = usageCountFor(userId, today, Feature.TAROT);
         int generateUsed = usageCountFor(userId, today, Feature.GENERATE);
         return new ProgressResponse(
                 tier.label(),
                 user.getTotalPoints(),
-                TierPolicy.pointsToNextTier(user.getTotalPoints()),
+                TierPolicy.pointsToNextTier(tier, user.getTotalPoints()),
                 new ProgressResponse.UsageInfo(tarotUsed, TierPolicy.dailyLimit(tier, Feature.TAROT)),
                 new ProgressResponse.UsageInfo(generateUsed, TierPolicy.dailyLimit(tier, Feature.GENERATE)),
                 TierPolicy.maxSets(tier),
@@ -81,7 +81,7 @@ public class UsageService {
 
     public int maxSetsFor(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
-        return TierPolicy.maxSets(TierPolicy.tierForPoints(user.getTotalPoints()));
+        return TierPolicy.maxSets(TierPolicy.effectiveTier(user.getForcedTier(), user.getTotalPoints()));
     }
 
     private int usageCountFor(Long userId, LocalDate date, Feature feature) {

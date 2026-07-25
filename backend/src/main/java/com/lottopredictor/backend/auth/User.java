@@ -33,6 +33,9 @@ public class User {
     @Column(name = "last_active_date")
     private LocalDate lastActiveDate;
 
+    @Column(name = "forced_tier")
+    private String forcedTier;
+
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
 
@@ -66,6 +69,14 @@ public class User {
 
     public LocalDate getLastActiveDate() {
         return lastActiveDate;
+    }
+
+    public String getForcedTier() {
+        return forcedTier;
+    }
+
+    public void setForcedTier(String forcedTier) {
+        this.forcedTier = forcedTier;
     }
 
     public Instant getCreatedAt() {

@@ -75,14 +75,27 @@ class TierPolicyTest {
 
     @Test
     void computesPointsNeededForNextTier() {
-        assertThat(TierPolicy.pointsToNextTier(0)).isEqualTo(50);
-        assertThat(TierPolicy.pointsToNextTier(40)).isEqualTo(10);
-        assertThat(TierPolicy.pointsToNextTier(50)).isEqualTo(100);
+        assertThat(TierPolicy.pointsToNextTier(Tier.BEGINNER, 0)).isEqualTo(50);
+        assertThat(TierPolicy.pointsToNextTier(Tier.BEGINNER, 40)).isEqualTo(10);
+        assertThat(TierPolicy.pointsToNextTier(Tier.APPRENTICE, 50)).isEqualTo(100);
     }
 
     @Test
-    void returnsNullForPointsToNextTierAtExpert() {
-        assertThat(TierPolicy.pointsToNextTier(150)).isNull();
-        assertThat(TierPolicy.pointsToNextTier(9999)).isNull();
+    void returnsNullForPointsToNextTierAtExpertOrLottoGod() {
+        assertThat(TierPolicy.pointsToNextTier(Tier.EXPERT, 150)).isNull();
+        assertThat(TierPolicy.pointsToNextTier(Tier.EXPERT, 9999)).isNull();
+        assertThat(TierPolicy.pointsToNextTier(Tier.LOTTO_GOD, 0)).isNull();
+    }
+
+    @Test
+    void effectiveTierFallsBackToPointsWhenNotForced() {
+        assertThat(TierPolicy.effectiveTier(null, 0)).isEqualTo(Tier.BEGINNER);
+        assertThat(TierPolicy.effectiveTier(null, 150)).isEqualTo(Tier.EXPERT);
+    }
+
+    @Test
+    void effectiveTierUsesTheForcedTierRegardlessOfPoints() {
+        assertThat(TierPolicy.effectiveTier("LOTTO_GOD", 0)).isEqualTo(Tier.LOTTO_GOD);
+        assertThat(TierPolicy.effectiveTier("BEGINNER", 10_000)).isEqualTo(Tier.BEGINNER);
     }
 }

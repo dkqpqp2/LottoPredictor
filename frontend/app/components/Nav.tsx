@@ -35,10 +35,10 @@ export default function Nav() {
       ))}
       {auth?.isAdmin && (
         <Link
-          href="/collect"
-          className={`${styles.link} ${pathname === "/collect" ? styles.linkActive : ""}`}
+          href="/admin"
+          className={`${styles.link} ${pathname === "/admin" ? styles.linkActive : ""}`}
         >
-          수집하기
+          관리자 페이지
         </Link>
       )}
       {auth ? (

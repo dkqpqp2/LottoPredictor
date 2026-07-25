@@ -30,6 +30,13 @@ public final class TierPolicy {
         return Tier.BEGINNER;
     }
 
+    public static Tier effectiveTier(String forcedTier, int totalPoints) {
+        if (forcedTier != null) {
+            return Tier.valueOf(forcedTier);
+        }
+        return tierForPoints(totalPoints);
+    }
+
     public static int dailyLimit(Tier tier, Feature feature) {
         DailyLimits limits = DAILY_LIMITS.get(tier);
         return feature == Feature.TAROT ? limits.tarot() : limits.generate();
@@ -43,8 +50,7 @@ public final class TierPolicy {
         return tier == Tier.LOTTO_GOD;
     }
 
-    public static Integer pointsToNextTier(int totalPoints) {
-        Tier tier = tierForPoints(totalPoints);
+    public static Integer pointsToNextTier(Tier tier, int totalPoints) {
         return switch (tier) {
             case BEGINNER -> 50 - totalPoints;
             case APPRENTICE -> 150 - totalPoints;
