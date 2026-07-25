@@ -6,6 +6,7 @@ import { getSavedNumbers, type SavedNumberResult } from "../../lib/savedNumbers"
 import { groupSavedNumbers } from "../../lib/groupSavedNumbers";
 import { getBallColor } from "../../lib/lottoBall";
 import { useAuth } from "../contexts/AuthContext";
+import { useProgress } from "../contexts/ProgressContext";
 import { getKakaoAuthorizeUrl } from "../../lib/auth";
 
 const SOURCE_LABELS: Record<SavedNumberResult["source"], string> = {
@@ -15,6 +16,7 @@ const SOURCE_LABELS: Record<SavedNumberResult["source"], string> = {
 
 export default function MyPage() {
   const { auth } = useAuth();
+  const { progress } = useProgress();
   const [savedNumbers, setSavedNumbers] = useState<SavedNumberResult[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,6 +51,18 @@ export default function MyPage() {
         <h1 className={styles.title}>마이페이지</h1>
         <p className={styles.subtitle}>지금까지 저장한 번호를 월별/주별로 모아봤어요.</p>
       </section>
+
+      {progress && (
+        <div className={styles.tierCard}>
+          <span className={styles.tierBadge}>{progress.tier}</span>
+          <span className={styles.tierMeta}>
+            누적 {progress.totalPoints}P
+            {progress.pointsToNextTier != null
+              ? ` · 다음 등급까지 ${progress.pointsToNextTier}P`
+              : " · 최고 등급"}
+          </span>
+        </div>
+      )}
 
       {error && <p className={styles.error}>{error}</p>}
 

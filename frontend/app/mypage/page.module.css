@@ -50,6 +50,30 @@
   text-decoration: none;
 }
 
+.tierCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1.1rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.tierBadge {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.tierMeta {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
 .error {
   color: var(--danger);
   font-size: 0.9rem;
