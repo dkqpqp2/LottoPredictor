@@ -5,7 +5,8 @@ public record ProgressResponse(
         int totalPoints,
         Integer pointsToNextTier,
         UsageInfo tarotUsage,
-        UsageInfo generateUsage
+        UsageInfo generateUsage,
+        int maxSets
 ) {
     public record UsageInfo(int used, int limit) {
     }

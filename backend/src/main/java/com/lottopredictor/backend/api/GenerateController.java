@@ -32,7 +32,8 @@ public class GenerateController {
         if (!usageService.consume(principal.userId(), Feature.GENERATE)) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }
-        int clampedSets = Math.min(Math.max(sets, 1), 10);
+        int maxSets = usageService.maxSetsFor(principal.userId());
+        int clampedSets = Math.min(Math.max(sets, 1), maxSets);
         String normalizedMode = "random".equals(mode) ? "random" : "weighted";
         return ResponseEntity.ok(service.generate(normalizedMode, clampedSets));
     }

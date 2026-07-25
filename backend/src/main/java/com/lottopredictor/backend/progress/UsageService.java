@@ -73,8 +73,14 @@ public class UsageService {
                 user.getTotalPoints(),
                 TierPolicy.pointsToNextTier(user.getTotalPoints()),
                 new ProgressResponse.UsageInfo(tarotUsed, TierPolicy.dailyLimit(tier, Feature.TAROT)),
-                new ProgressResponse.UsageInfo(generateUsed, TierPolicy.dailyLimit(tier, Feature.GENERATE))
+                new ProgressResponse.UsageInfo(generateUsed, TierPolicy.dailyLimit(tier, Feature.GENERATE)),
+                TierPolicy.maxSets(tier)
         );
+    }
+
+    public int maxSetsFor(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow();
+        return TierPolicy.maxSets(TierPolicy.tierForPoints(user.getTotalPoints()));
     }
 
     private int usageCountFor(Long userId, LocalDate date, Feature feature) {

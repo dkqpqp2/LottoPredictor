@@ -6,6 +6,7 @@ export interface ProgressResult {
   pointsToNextTier: number | null;
   tarotUsage: { used: number; limit: number };
   generateUsage: { used: number; limit: number };
+  maxSets: number;
 }
 
 export async function getProgress(token: string): Promise<ProgressResult> {

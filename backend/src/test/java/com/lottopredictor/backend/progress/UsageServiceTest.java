@@ -147,5 +147,17 @@ class UsageServiceTest {
         assertThat(progress.pointsToNextTier()).isEqualTo(100);
         assertThat(progress.tarotUsage()).isEqualTo(new ProgressResponse.UsageInfo(1, 1));
         assertThat(progress.generateUsage()).isEqualTo(new ProgressResponse.UsageInfo(0, 2));
+        assertThat(progress.maxSets()).isEqualTo(4);
+    }
+
+    @Test
+    void maxSetsForReturnsTheLimitForTheUsersCurrentTier() {
+        User user = newUser();
+        user.addPoints(150);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        UsageService service = new UsageService(userRepository, dailyUsageRepository);
+
+        assertThat(service.maxSetsFor(1L)).isEqualTo(6);
     }
 }

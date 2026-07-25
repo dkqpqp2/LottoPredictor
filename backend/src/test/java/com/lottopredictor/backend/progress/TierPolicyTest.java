@@ -63,6 +63,15 @@ class TierPolicyTest {
     }
 
     @Test
+    void maxSetsScalesWithTier() {
+        assertThat(TierPolicy.maxSets(Tier.BEGINNER)).isEqualTo(2);
+        assertThat(TierPolicy.maxSets(Tier.APPRENTICE)).isEqualTo(4);
+        assertThat(TierPolicy.maxSets(Tier.EXPERT)).isEqualTo(6);
+        assertThat(TierPolicy.maxSets(Tier.MASTER)).isEqualTo(8);
+        assertThat(TierPolicy.maxSets(Tier.LOTTO_GOD)).isEqualTo(10);
+    }
+
+    @Test
     void computesPointsNeededForNextTier() {
         assertThat(TierPolicy.pointsToNextTier(0)).isEqualTo(50);
         assertThat(TierPolicy.pointsToNextTier(40)).isEqualTo(10);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./generate.module.css";
 import {
   generateNumbers,
@@ -35,6 +35,14 @@ export default function GeneratePage() {
   const [savedIndices, setSavedIndices] = useState<Set<number>>(new Set());
   const [savingIndex, setSavingIndex] = useState<number | null>(null);
   const [saveErrors, setSaveErrors] = useState<Record<number, string>>({});
+  const setsInitialized = useRef(false);
+
+  useEffect(() => {
+    if (progress && !setsInitialized.current) {
+      setSets(progress.maxSets);
+      setsInitialized.current = true;
+    }
+  }, [progress]);
 
   useEffect(() => {
     getDraws({ page: 0, size: 1 })
@@ -217,7 +225,7 @@ export default function GeneratePage() {
             </div>
 
             <div className={styles.setsField}>
-              <span>세트 수</span>
+              <span>세트 수 (최대 {progress?.maxSets ?? 1})</span>
               <div className={styles.stepper}>
                 <button
                   type="button"
@@ -232,8 +240,8 @@ export default function GeneratePage() {
                 <button
                   type="button"
                   className={styles.stepperButton}
-                  onClick={() => setSets((s) => Math.min(10, s + 1))}
-                  disabled={sets >= 10 || animating}
+                  onClick={() => setSets((s) => Math.min(progress?.maxSets ?? 1, s + 1))}
+                  disabled={sets >= (progress?.maxSets ?? 1) || animating}
                   aria-label="세트 수 증가"
                 >
                   +

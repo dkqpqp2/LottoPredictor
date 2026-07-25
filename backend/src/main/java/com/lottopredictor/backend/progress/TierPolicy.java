@@ -18,6 +18,14 @@ public final class TierPolicy {
             Tier.LOTTO_GOD, new DailyLimits(Integer.MAX_VALUE, Integer.MAX_VALUE)
     );
 
+    private static final Map<Tier, Integer> MAX_SETS = Map.of(
+            Tier.BEGINNER, 2,
+            Tier.APPRENTICE, 4,
+            Tier.EXPERT, 6,
+            Tier.MASTER, 8,
+            Tier.LOTTO_GOD, 10
+    );
+
     public static Tier tierForPoints(int totalPoints) {
         if (totalPoints >= 350) return Tier.MASTER;
         if (totalPoints >= 150) return Tier.EXPERT;
@@ -28,6 +36,10 @@ public final class TierPolicy {
     public static int dailyLimit(Tier tier, Feature feature) {
         DailyLimits limits = DAILY_LIMITS.get(tier);
         return feature == Feature.TAROT ? limits.tarot() : limits.generate();
+    }
+
+    public static int maxSets(Tier tier) {
+        return MAX_SETS.get(tier);
     }
 
     public static Integer pointsToNextTier(int totalPoints) {
