@@ -1,5 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getProgress, consumeTarotUsage } from "./progress";
+import { getProgress, consumeTarotUsage, formatRemainingUsage } from "./progress";
+
+describe("formatRemainingUsage", () => {
+  it("shows a used/limit fraction for a normal limit", () => {
+    expect(formatRemainingUsage({ used: 1, limit: 3 })).toBe("2/3");
+  });
+
+  it("shows 무제한 when the limit is the unlimited sentinel", () => {
+    expect(formatRemainingUsage({ used: 1, limit: 2147483647 })).toBe("무제한");
+  });
+});
 
 describe("getProgress", () => {
   afterEach(() => {

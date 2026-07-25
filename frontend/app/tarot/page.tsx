@@ -11,7 +11,7 @@ import { getZodiacSign, type ZodiacSign } from "../../lib/zodiac";
 import LottoDrawAnimation from "../components/LottoDrawAnimation";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
-import { consumeTarotUsage } from "../../lib/progress";
+import { consumeTarotUsage, formatRemainingUsage } from "../../lib/progress";
 import { getKakaoAuthorizeUrl } from "../../lib/auth";
 import { saveNumbers } from "../../lib/savedNumbers";
 
@@ -282,8 +282,7 @@ export default function Home() {
 
       {progress && (
         <p className={styles.hint}>
-          오늘 남은 타로 횟수: {progress.tarotUsage.limit - progress.tarotUsage.used}/{progress.tarotUsage.limit} (
-          {progress.tier} 등급)
+          오늘 남은 타로 횟수: {formatRemainingUsage(progress.tarotUsage)} ({progress.tier} 등급)
         </p>
       )}
 

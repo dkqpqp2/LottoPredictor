@@ -16,6 +16,7 @@ import { getBallColor } from "../../lib/lottoBall";
 import LottoDrawAnimation from "../components/LottoDrawAnimation";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
+import { formatRemainingUsage } from "../../lib/progress";
 import { getKakaoAuthorizeUrl } from "../../lib/auth";
 import { saveNumbers } from "../../lib/savedNumbers";
 
@@ -121,8 +122,7 @@ export default function GeneratePage() {
 
       {progress && (
         <p className={styles.error}>
-          오늘 남은 번호생성 횟수: {progress.generateUsage.limit - progress.generateUsage.used}/
-          {progress.generateUsage.limit} ({progress.tier} 등급)
+          오늘 남은 번호생성 횟수: {formatRemainingUsage(progress.generateUsage)} ({progress.tier} 등급)
         </p>
       )}
 

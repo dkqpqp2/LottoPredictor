@@ -10,6 +10,15 @@ export interface ProgressResult {
   adjustableSets: boolean;
 }
 
+const UNLIMITED_THRESHOLD = 1_000_000;
+
+export function formatRemainingUsage(usage: { used: number; limit: number }): string {
+  if (usage.limit >= UNLIMITED_THRESHOLD) {
+    return "무제한";
+  }
+  return `${usage.limit - usage.used}/${usage.limit}`;
+}
+
 export async function getProgress(token: string): Promise<ProgressResult> {
   const res = await fetch(`${API_BASE_URL}/api/progress/me`, {
     headers: { Authorization: `Bearer ${token}` },
