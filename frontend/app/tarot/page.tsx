@@ -251,6 +251,24 @@ export default function Home() {
     );
   }
 
+  if (progress && progress.tarotUsage.used >= progress.tarotUsage.limit) {
+    return (
+      <div className={styles.page}>
+        <section className={styles.hero}>
+          <h1 className={styles.title}>타로 운세 번호</h1>
+          <p className={styles.subtitle}>
+            카드로 오늘의 이야기를 만들어 보세요.
+            <br />
+            실제 운세를 예측하는 것은 아니며, 재미로 참고해 주세요.
+          </p>
+        </section>
+        <div className={styles.card}>
+          <p className={styles.hint}>오늘 타로 사용 횟수를 다 쓰셨어요. 내일 다시 찾아와 주세요.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
       <section className={styles.hero}>

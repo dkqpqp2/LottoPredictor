@@ -44,9 +44,16 @@ class TierPolicyTest {
     }
 
     @Test
-    void masterHasFiveUsesPerFeaturePerDay() {
-        assertThat(TierPolicy.dailyLimit(Tier.MASTER, Feature.TAROT)).isEqualTo(5);
+    void masterHasFiveGenerateUsesPerDay() {
         assertThat(TierPolicy.dailyLimit(Tier.MASTER, Feature.GENERATE)).isEqualTo(5);
+    }
+
+    @Test
+    void tarotIsCappedAtOnePerDayForEveryReachableTier() {
+        assertThat(TierPolicy.dailyLimit(Tier.BEGINNER, Feature.TAROT)).isEqualTo(1);
+        assertThat(TierPolicy.dailyLimit(Tier.APPRENTICE, Feature.TAROT)).isEqualTo(1);
+        assertThat(TierPolicy.dailyLimit(Tier.EXPERT, Feature.TAROT)).isEqualTo(1);
+        assertThat(TierPolicy.dailyLimit(Tier.MASTER, Feature.TAROT)).isEqualTo(1);
     }
 
     @Test

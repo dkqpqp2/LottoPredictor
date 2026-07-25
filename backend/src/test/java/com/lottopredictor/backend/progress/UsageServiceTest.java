@@ -145,7 +145,7 @@ class UsageServiceTest {
         assertThat(progress.tier()).isEqualTo("견습생");
         assertThat(progress.totalPoints()).isEqualTo(50);
         assertThat(progress.pointsToNextTier()).isEqualTo(100);
-        assertThat(progress.tarotUsage()).isEqualTo(new ProgressResponse.UsageInfo(1, 2));
+        assertThat(progress.tarotUsage()).isEqualTo(new ProgressResponse.UsageInfo(1, 1));
         assertThat(progress.generateUsage()).isEqualTo(new ProgressResponse.UsageInfo(0, 2));
     }
 }

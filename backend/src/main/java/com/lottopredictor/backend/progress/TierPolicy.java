@@ -12,9 +12,9 @@ public final class TierPolicy {
 
     private static final Map<Tier, DailyLimits> DAILY_LIMITS = Map.of(
             Tier.BEGINNER, new DailyLimits(1, 1),
-            Tier.APPRENTICE, new DailyLimits(2, 2),
-            Tier.EXPERT, new DailyLimits(3, 3),
-            Tier.MASTER, new DailyLimits(5, 5),
+            Tier.APPRENTICE, new DailyLimits(1, 2),
+            Tier.EXPERT, new DailyLimits(1, 3),
+            Tier.MASTER, new DailyLimits(1, 5),
             Tier.LOTTO_GOD, new DailyLimits(Integer.MAX_VALUE, Integer.MAX_VALUE)
     );
 
