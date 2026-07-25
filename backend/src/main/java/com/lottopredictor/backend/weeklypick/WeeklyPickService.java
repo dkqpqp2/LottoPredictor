@@ -34,18 +34,26 @@ public class WeeklyPickService {
     }
 
     public WeeklyPickResult getCurrentWeekResult() {
-        LocalDate weekStart = currentWeekStart();
-        WeeklyPick pick = weeklyPickRepository.findById(weekStart).orElseGet(() -> generateAndSave(weekStart));
-        return toResult(pick);
+        return toResult(getCurrentPick());
     }
 
     public List<WeeklyPickResult> getHistory(int limit) {
-        LocalDate weekStart = currentWeekStart();
+        WeeklyPick current = getCurrentPick();
         return weeklyPickRepository
-                .findByWeekStartLessThanOrderByWeekStartDesc(weekStart, PageRequest.of(0, limit))
+                .findByIdLessThanOrderByIdDesc(current.getId(), PageRequest.of(0, limit))
                 .stream()
                 .map(this::toResult)
                 .toList();
+    }
+
+    private WeeklyPick getCurrentPick() {
+        return weeklyPickRepository.findTopByOrderByIdDesc()
+                .filter(pick -> !isResolved(pick))
+                .orElseGet(() -> generateAndSave(currentWeekStart()));
+    }
+
+    private boolean isResolved(WeeklyPick pick) {
+        return lottoDrawRepository.existsById(pick.getTargetDrawNo());
     }
 
     private LocalDate currentWeekStart() {

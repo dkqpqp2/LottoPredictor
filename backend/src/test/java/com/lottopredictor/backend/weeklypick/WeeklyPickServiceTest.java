@@ -15,6 +15,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -31,8 +33,8 @@ class WeeklyPickServiceTest {
     private NumberGenerationService numberGenerationService;
 
     @Test
-    void generatesAndSavesANewPickWhenNoneExistsForTheCurrentWeek() {
-        when(weeklyPickRepository.findById(any(LocalDate.class))).thenReturn(Optional.empty());
+    void generatesAndSavesANewPickWhenNoneExistsYet() {
+        when(weeklyPickRepository.findTopByOrderByIdDesc()).thenReturn(Optional.empty());
         when(lottoDrawRepository.findMaxDrawNo()).thenReturn(Optional.of(1233));
         when(numberGenerationService.generate("weighted", 1))
                 .thenReturn(new GenerateResult("weighted", List.of(List.of(1, 2, 3, 4, 5, 6))));
@@ -49,10 +51,11 @@ class WeeklyPickServiceTest {
     }
 
     @Test
-    void reusesAnExistingPickInsteadOfGeneratingANewOne() {
+    void reusesTheCurrentPickWhenItsTargetDrawIsNotYetResolved() {
         LocalDate weekStart = LocalDate.of(2026, 7, 20);
         WeeklyPick existing = new WeeklyPick(weekStart, 1234, 1, 2, 3, 4, 5, 6, "weighted");
-        when(weeklyPickRepository.findById(any(LocalDate.class))).thenReturn(Optional.of(existing));
+        when(weeklyPickRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(existing));
+        when(lottoDrawRepository.existsById(1234)).thenReturn(false);
         when(lottoDrawRepository.findById(1234)).thenReturn(Optional.empty());
 
         WeeklyPickService service =
@@ -64,17 +67,44 @@ class WeeklyPickServiceTest {
     }
 
     @Test
-    void computesMatchCountAndRankWhenTheTargetDrawIsAvailable() {
+    void advancesToANewPickOnceTheCurrentTargetDrawIsResolved() {
         LocalDate weekStart = LocalDate.of(2026, 7, 6);
-        WeeklyPick existing = new WeeklyPick(weekStart, 1230, 3, 8, 9, 22, 28, 1, "weighted");
-        when(weeklyPickRepository.findById(any(LocalDate.class))).thenReturn(Optional.of(existing));
-        LottoDraw draw = new LottoDraw(1230, LocalDate.of(2026, 6, 27), 3, 8, 9, 22, 28, 42, 45);
-        when(lottoDrawRepository.findById(1230)).thenReturn(Optional.of(draw));
+        WeeklyPick resolved = new WeeklyPick(weekStart, 1234, 3, 8, 9, 22, 28, 1, "weighted");
+        when(weeklyPickRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(resolved));
+        when(lottoDrawRepository.existsById(1234)).thenReturn(true);
+        when(lottoDrawRepository.findMaxDrawNo()).thenReturn(Optional.of(1234));
+        when(numberGenerationService.generate("weighted", 1))
+                .thenReturn(new GenerateResult("weighted", List.of(List.of(7, 16, 22, 26, 30, 35))));
+        when(weeklyPickRepository.save(any(WeeklyPick.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(lottoDrawRepository.findById(1235)).thenReturn(Optional.empty());
 
         WeeklyPickService service =
                 new WeeklyPickService(weeklyPickRepository, lottoDrawRepository, numberGenerationService);
         WeeklyPickResult result = service.getCurrentWeekResult();
 
+        assertThat(result.targetDrawNo()).isEqualTo(1235);
+        assertThat(result.numbers()).containsExactly(7, 16, 22, 26, 30, 35);
+        assertThat(result.resultAvailable()).isFalse();
+        verify(weeklyPickRepository).save(any(WeeklyPick.class));
+    }
+
+    @Test
+    void historyReportsMatchCountAndRankForAResolvedPastPick() {
+        WeeklyPick current = new WeeklyPick(LocalDate.of(2026, 7, 20), 1235, 7, 16, 22, 26, 30, 35, "weighted");
+        WeeklyPick past = new WeeklyPick(LocalDate.of(2026, 7, 6), 1230, 3, 8, 9, 22, 28, 1, "weighted");
+        when(weeklyPickRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(current));
+        when(lottoDrawRepository.existsById(1235)).thenReturn(false);
+        when(weeklyPickRepository.findByIdLessThanOrderByIdDesc(eq(current.getId()), any()))
+                .thenReturn(List.of(past));
+        LottoDraw draw = new LottoDraw(1230, LocalDate.of(2026, 6, 27), 3, 8, 9, 22, 28, 42, 45);
+        when(lottoDrawRepository.findById(1230)).thenReturn(Optional.of(draw));
+
+        WeeklyPickService service =
+                new WeeklyPickService(weeklyPickRepository, lottoDrawRepository, numberGenerationService);
+        List<WeeklyPickResult> history = service.getHistory(5);
+
+        assertThat(history).hasSize(1);
+        WeeklyPickResult result = history.get(0);
         assertThat(result.resultAvailable()).isTrue();
         assertThat(result.matchCount()).isEqualTo(5);
         assertThat(result.bonusMatch()).isFalse();

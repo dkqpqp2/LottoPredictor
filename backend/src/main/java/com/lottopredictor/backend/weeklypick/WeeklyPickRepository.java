@@ -3,10 +3,12 @@ package com.lottopredictor.backend.weeklypick;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
-public interface WeeklyPickRepository extends JpaRepository<WeeklyPick, LocalDate> {
+public interface WeeklyPickRepository extends JpaRepository<WeeklyPick, Long> {
 
-    List<WeeklyPick> findByWeekStartLessThanOrderByWeekStartDesc(LocalDate weekStart, Pageable pageable);
+    Optional<WeeklyPick> findTopByOrderByIdDesc();
+
+    List<WeeklyPick> findByIdLessThanOrderByIdDesc(Long id, Pageable pageable);
 }

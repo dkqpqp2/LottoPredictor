@@ -2,6 +2,8 @@ package com.lottopredictor.backend.weeklypick;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -14,7 +16,10 @@ import java.util.List;
 public class WeeklyPick {
 
     @Id
-    @Column(name = "week_start")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "week_start", nullable = false)
     private LocalDate weekStart;
 
     @Column(name = "target_draw_no", nullable = false)
@@ -67,6 +72,10 @@ public class WeeklyPick {
         this.num5 = num5;
         this.num6 = num6;
         this.mode = mode;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public LocalDate getWeekStart() {
