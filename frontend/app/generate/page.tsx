@@ -225,28 +225,34 @@ export default function GeneratePage() {
             </div>
 
             <div className={styles.setsField}>
-              <span>세트 수 (최대 {progress?.maxSets ?? 1})</span>
-              <div className={styles.stepper}>
-                <button
-                  type="button"
-                  className={styles.stepperButton}
-                  onClick={() => setSets((s) => Math.max(1, s - 1))}
-                  disabled={sets <= 1 || animating}
-                  aria-label="세트 수 감소"
-                >
-                  −
-                </button>
-                <span className={styles.stepperValue}>{sets}</span>
-                <button
-                  type="button"
-                  className={styles.stepperButton}
-                  onClick={() => setSets((s) => Math.min(progress?.maxSets ?? 1, s + 1))}
-                  disabled={sets >= (progress?.maxSets ?? 1) || animating}
-                  aria-label="세트 수 증가"
-                >
-                  +
-                </button>
-              </div>
+              {progress?.adjustableSets ? (
+                <>
+                  <span>세트 수 (최대 {progress.maxSets})</span>
+                  <div className={styles.stepper}>
+                    <button
+                      type="button"
+                      className={styles.stepperButton}
+                      onClick={() => setSets((s) => Math.max(1, s - 1))}
+                      disabled={sets <= 1 || animating}
+                      aria-label="세트 수 감소"
+                    >
+                      −
+                    </button>
+                    <span className={styles.stepperValue}>{sets}</span>
+                    <button
+                      type="button"
+                      className={styles.stepperButton}
+                      onClick={() => setSets((s) => Math.min(progress.maxSets, s + 1))}
+                      disabled={sets >= progress.maxSets || animating}
+                      aria-label="세트 수 증가"
+                    >
+                      +
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <span>세트 수: {progress?.maxSets ?? 1}세트 ({progress?.tier} 등급)</span>
+              )}
             </div>
           </div>
 

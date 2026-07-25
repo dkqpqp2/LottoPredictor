@@ -74,7 +74,8 @@ public class UsageService {
                 TierPolicy.pointsToNextTier(user.getTotalPoints()),
                 new ProgressResponse.UsageInfo(tarotUsed, TierPolicy.dailyLimit(tier, Feature.TAROT)),
                 new ProgressResponse.UsageInfo(generateUsed, TierPolicy.dailyLimit(tier, Feature.GENERATE)),
-                TierPolicy.maxSets(tier)
+                TierPolicy.maxSets(tier),
+                TierPolicy.hasAdjustableSets(tier)
         );
     }
 

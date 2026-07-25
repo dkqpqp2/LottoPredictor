@@ -142,12 +142,13 @@ class UsageServiceTest {
         UsageService service = new UsageService(userRepository, dailyUsageRepository);
         ProgressResponse progress = service.getProgress(1L);
 
-        assertThat(progress.tier()).isEqualTo("견습생");
+        assertThat(progress.tier()).isEqualTo("뽑기 견습생");
         assertThat(progress.totalPoints()).isEqualTo(50);
         assertThat(progress.pointsToNextTier()).isEqualTo(100);
         assertThat(progress.tarotUsage()).isEqualTo(new ProgressResponse.UsageInfo(1, 1));
-        assertThat(progress.generateUsage()).isEqualTo(new ProgressResponse.UsageInfo(0, 2));
-        assertThat(progress.maxSets()).isEqualTo(4);
+        assertThat(progress.generateUsage()).isEqualTo(new ProgressResponse.UsageInfo(0, 3));
+        assertThat(progress.maxSets()).isEqualTo(3);
+        assertThat(progress.adjustableSets()).isFalse();
     }
 
     @Test
@@ -158,6 +159,6 @@ class UsageServiceTest {
 
         UsageService service = new UsageService(userRepository, dailyUsageRepository);
 
-        assertThat(service.maxSetsFor(1L)).isEqualTo(6);
+        assertThat(service.maxSetsFor(1L)).isEqualTo(5);
     }
 }

@@ -6,7 +6,8 @@ public record ProgressResponse(
         Integer pointsToNextTier,
         UsageInfo tarotUsage,
         UsageInfo generateUsage,
-        int maxSets
+        int maxSets,
+        boolean adjustableSets
 ) {
     public record UsageInfo(int used, int limit) {
     }

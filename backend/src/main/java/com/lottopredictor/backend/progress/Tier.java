@@ -1,10 +1,9 @@
 package com.lottopredictor.backend.progress;
 
 public enum Tier {
-    BEGINNER("초심자"),
-    APPRENTICE("견습생"),
-    EXPERT("고수"),
-    MASTER("마스터"),
+    BEGINNER("뽑기 초심자"),
+    APPRENTICE("뽑기 견습생"),
+    EXPERT("뽑기 고수"),
     LOTTO_GOD("뽑기의 신");
 
     private final String label;

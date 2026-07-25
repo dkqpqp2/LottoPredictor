@@ -7,6 +7,7 @@ export interface ProgressResult {
   tarotUsage: { used: number; limit: number };
   generateUsage: { used: number; limit: number };
   maxSets: number;
+  adjustableSets: boolean;
 }
 
 export async function getProgress(token: string): Promise<ProgressResult> {
