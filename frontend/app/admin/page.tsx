@@ -5,6 +5,7 @@ import styles from "./page.module.css";
 import { triggerCrawl, type SyncResult } from "../../lib/api";
 import { getAdminUsers, setUserTier, type AdminUser } from "../../lib/admin";
 import { useAuth } from "../contexts/AuthContext";
+import { useProgress } from "../contexts/ProgressContext";
 import { getKakaoAuthorizeUrl } from "../../lib/auth";
 
 const TIER_OPTIONS: { value: string; label: string }[] = [
@@ -17,6 +18,7 @@ const TIER_OPTIONS: { value: string; label: string }[] = [
 
 export default function AdminPage() {
   const { auth } = useAuth();
+  const { refreshProgress } = useProgress();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SyncResult | null>(null);
@@ -59,6 +61,7 @@ export default function AdminPage() {
       const selected = selections[userId] ?? "";
       const updated = await setUserTier(userId, selected === "" ? null : selected, auth.token);
       setUsers((prev) => prev.map((u) => (u.id === userId ? updated : u)));
+      refreshProgress();
     } catch (err) {
       setUsersError(err instanceof Error ? err.message : "등급 변경에 실패했습니다.");
     } finally {
