@@ -1,7 +1,7 @@
 spring.datasource.url=jdbc:postgresql://<host>:5432/postgres?sslmode=require
 spring.datasource.username=postgres
 spring.datasource.password=<supabase-db-password>
-lotto.crawl-secret=<any-random-string>
+admin.user-id=<크롤링을 실행할 수 있는 유일한 계정의 users.id 값>
 lotto.frontend-origin=http://localhost:3000
 jwt.secret=<32바이트 이상의 임의 문자열, 예: openssl rand -base64 32 결과>
 kakao.client-id=<카카오 개발자센터에서 발급받은 REST API 키>

@@ -1,4 +1,4 @@
 package com.lottopredictor.backend.auth;
 
-public record KakaoLoginResponse(String token, String nickname) {
+public record KakaoLoginResponse(String token, String nickname, boolean isAdmin) {
 }

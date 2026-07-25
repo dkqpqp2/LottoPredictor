@@ -12,7 +12,6 @@ const LINKS = [
   { href: "/generate", label: "번호생성" },
   { href: "/stats", label: "통계" },
   { href: "/draws", label: "회차조회" },
-  { href: "/collect", label: "수집하기" },
 ];
 
 export default function Nav() {
@@ -34,6 +33,14 @@ export default function Nav() {
           {link.label}
         </Link>
       ))}
+      {auth?.isAdmin && (
+        <Link
+          href="/collect"
+          className={`${styles.link} ${pathname === "/collect" ? styles.linkActive : ""}`}
+        >
+          수집하기
+        </Link>
+      )}
       {auth ? (
         <div className={styles.authSection}>
           <Link

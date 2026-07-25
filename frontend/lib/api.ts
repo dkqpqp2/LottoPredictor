@@ -85,13 +85,13 @@ export interface SyncResult {
   skipped: SkippedDraw[];
 }
 
-export async function triggerCrawl(secret: string): Promise<SyncResult> {
+export async function triggerCrawl(token: string): Promise<SyncResult> {
   const res = await fetch(`${API_BASE_URL}/api/crawl`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${secret}` },
+    headers: { Authorization: `Bearer ${token}` },
   });
-  if (res.status === 401) {
-    throw new Error("시크릿이 올바르지 않습니다.");
+  if (res.status === 403) {
+    throw new Error("관리자 계정만 이용할 수 있어요.");
   }
   if (!res.ok) {
     throw new Error("크롤링 요청에 실패했습니다.");

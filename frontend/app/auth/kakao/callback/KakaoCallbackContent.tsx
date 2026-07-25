@@ -22,8 +22,8 @@ export default function KakaoCallbackContent() {
 
     const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI ?? "";
     loginWithKakaoCode(code, redirectUri)
-      .then(({ token, nickname }) => {
-        login(token, nickname);
+      .then(({ token, nickname, isAdmin }) => {
+        login(token, nickname, isAdmin);
         router.replace("/");
       })
       .catch(() => setError("카카오 로그인에 실패했습니다."));

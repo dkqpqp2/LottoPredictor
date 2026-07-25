@@ -14,6 +14,7 @@ export function getKakaoAuthorizeUrl(): string {
 export interface KakaoLoginResult {
   token: string;
   nickname: string;
+  isAdmin: boolean;
 }
 
 export async function loginWithKakaoCode(code: string, redirectUri: string): Promise<KakaoLoginResult> {
@@ -30,6 +31,7 @@ export async function loginWithKakaoCode(code: string, redirectUri: string): Pro
 
 export interface MeResult {
   nickname: string;
+  isAdmin: boolean;
 }
 
 export async function getMe(token: string): Promise<MeResult> {

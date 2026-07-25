@@ -1,4 +1,4 @@
 package com.lottopredictor.backend.auth;
 
-public record MeResponse(String nickname) {
+public record MeResponse(String nickname, boolean isAdmin) {
 }
