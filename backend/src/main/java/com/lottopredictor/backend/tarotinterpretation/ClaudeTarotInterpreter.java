@@ -8,6 +8,7 @@ import com.anthropic.models.messages.Model;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.stream.Collectors;
 
 @Component
@@ -26,7 +27,7 @@ public class ClaudeTarotInterpreter {
     private final AnthropicClient client;
 
     public ClaudeTarotInterpreter(@Value("${anthropic.api-key}") String apiKey) {
-        this.client = AnthropicOkHttpClient.builder().apiKey(apiKey).build();
+        this.client = AnthropicOkHttpClient.builder().apiKey(apiKey).timeout(Duration.ofSeconds(30)).build();
     }
 
     public String interpret(String userPrompt) {

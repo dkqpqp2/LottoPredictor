@@ -5,15 +5,23 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lottopredictor.backend.progress.Feature;
 import com.lottopredictor.backend.progress.UsageService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class TarotInterpretationService {
+
+    private static final Set<String> VALID_MODES = Set.of("TAROT_ONLY", "WITH_ZODIAC");
+    private static final Set<String> VALID_DIRECTIONS = Set.of("up", "down", "left", "right");
+    private static final int MAX_CARDS = 3;
+    private static final int MAX_STRING_LENGTH = 20;
 
     private final TarotInterpretationRepository repository;
     private final UsageService usageService;
@@ -34,6 +42,7 @@ public class TarotInterpretationService {
 
     @Transactional
     public Optional<TarotInterpretationResponse> interpret(Long userId, TarotInterpretationRequest request) {
+        validate(request);
         if (!usageService.consume(userId, Feature.TAROT)) {
             return Optional.empty();
         }
@@ -45,6 +54,31 @@ public class TarotInterpretationService {
                 userId, request.mode(), cardsJson, request.zodiacName(), text, Instant.now()
         ));
         return Optional.of(toResponse(saved));
+    }
+
+    private void validate(TarotInterpretationRequest request) {
+        if (request.mode() == null || !VALID_MODES.contains(request.mode())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid mode");
+        }
+        List<TarotInterpretationRequest.CardInput> cards = request.cards();
+        if (cards == null || cards.isEmpty() || cards.size() > MAX_CARDS) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid cards");
+        }
+        for (TarotInterpretationRequest.CardInput card : cards) {
+            if (card.direction() == null || !VALID_DIRECTIONS.contains(card.direction())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid direction");
+            }
+            requireMaxLength(card.nameKo());
+            requireMaxLength(card.keyword());
+            requireMaxLength(card.positionLabel());
+        }
+        requireMaxLength(request.zodiacName());
+    }
+
+    private void requireMaxLength(String value) {
+        if (value != null && value.length() > MAX_STRING_LENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "field too long");
+        }
     }
 
     public List<TarotInterpretationResponse> getHistory(Long userId) {

@@ -368,6 +368,7 @@
   font-size: 0.98rem;
   line-height: 1.7;
   color: var(--cosmic-text);
+  white-space: pre-wrap;
 }
 
 .spreadPickRow {

@@ -541,7 +541,7 @@ export default function Home() {
           {!interpretation && !interpreting && (
             <>
               <button type="button" className={styles.generateButton} onClick={handleRequestInterpretation}>
-                종합 해석 보기
+                {interpretationError ? "다시 시도" : "종합 해석 보기"}
               </button>
               {interpretationError && <p className={styles.hint}>{interpretationError}</p>}
             </>
@@ -582,7 +582,7 @@ export default function Home() {
           {!interpretation && !interpreting && (
             <>
               <button type="button" className={styles.generateButton} onClick={handleRequestInterpretation}>
-                종합 해석 보기
+                {interpretationError ? "다시 시도" : "종합 해석 보기"}
               </button>
               {interpretationError && <p className={styles.hint}>{interpretationError}</p>}
             </>
@@ -627,7 +627,7 @@ export default function Home() {
                         type="button"
                         className={styles.stepperButton}
                         onClick={() => setDrawSets((s) => Math.max(1, s - 1))}
-                        disabled={drawSets <= 1}
+                        disabled={drawSets <= 1 || drawLoading}
                         aria-label="세트 수 감소"
                       >
                         −
@@ -637,7 +637,7 @@ export default function Home() {
                         type="button"
                         className={styles.stepperButton}
                         onClick={() => setDrawSets((s) => Math.min(progress.maxSets, s + 1))}
-                        disabled={drawSets >= progress.maxSets}
+                        disabled={drawSets >= progress.maxSets || drawLoading}
                         aria-label="세트 수 증가"
                       >
                         +
