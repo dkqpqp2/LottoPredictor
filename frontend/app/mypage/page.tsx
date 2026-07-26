@@ -5,6 +5,7 @@ import styles from "./page.module.css";
 import { getSavedNumbers, type SavedNumberResult } from "../../lib/savedNumbers";
 import { groupSavedNumbers } from "../../lib/groupSavedNumbers";
 import { getBallColor } from "../../lib/lottoBall";
+import { getTarotInterpretationHistory, type TarotInterpretationResult } from "../../lib/tarotInterpretation";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
 import { getKakaoAuthorizeUrl } from "../../lib/auth";
@@ -27,12 +28,17 @@ export default function MyPage() {
   const { progress } = useProgress();
   const [savedNumbers, setSavedNumbers] = useState<SavedNumberResult[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [interpretations, setInterpretations] = useState<TarotInterpretationResult[]>([]);
+  const [interpretationsError, setInterpretationsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!auth) return;
     getSavedNumbers(auth.token)
       .then(setSavedNumbers)
       .catch(() => setError("저장된 번호를 불러오지 못했습니다."));
+    getTarotInterpretationHistory(auth.token)
+      .then(setInterpretations)
+      .catch(() => setInterpretationsError("타로 해석 기록을 불러오지 못했습니다."));
   }, [auth]);
 
   if (!auth) {
@@ -85,6 +91,33 @@ export default function MyPage() {
       )}
 
       {error && <p className={styles.error}>{error}</p>}
+
+      {interpretationsError && <p className={styles.error}>{interpretationsError}</p>}
+
+      {interpretations.length > 0 && (
+        <div className={styles.interpretationSection}>
+          <h2 className={styles.monthLabel}>타로 해석 기록</h2>
+          <div className={styles.interpretationList}>
+            {interpretations.map((item) => (
+              <div key={item.id} className={styles.interpretationCard}>
+                <div className={styles.interpretationHeader}>
+                  <span className={styles.sourceBadge}>
+                    {item.mode === "TAROT_ONLY" ? "타로만 보기" : "별자리 함께보기"}
+                  </span>
+                  <span className={styles.itemMeta}>{new Date(item.createdAt).toLocaleDateString("ko-KR")}</span>
+                </div>
+                <p className={styles.interpretationCards}>
+                  {item.cards
+                    .map((c) => (c.positionLabel ? `[${c.positionLabel}] ${c.nameKo}` : c.nameKo))
+                    .join(" · ")}
+                  {item.zodiacName ? ` · ${item.zodiacName}` : ""}
+                </p>
+                <p className={styles.interpretationText}>{item.interpretationText}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!error && groups.length === 0 && <p className={styles.empty}>아직 저장한 번호가 없어요.</p>}
 

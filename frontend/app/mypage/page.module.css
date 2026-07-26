@@ -189,3 +189,44 @@
   color: var(--text-tertiary);
   white-space: nowrap;
 }
+
+.interpretationSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.interpretationList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.interpretationCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.interpretationHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.interpretationCards {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.interpretationText {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}

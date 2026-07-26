@@ -26,9 +26,9 @@ public class ProgressController {
         return usageService.getProgress(principal.userId());
     }
 
-    @PostMapping("/api/progress/tarot-usage")
-    public ResponseEntity<ProgressResponse> tarotUsage(@AuthPrincipal AuthenticatedUser principal) {
-        if (!usageService.consume(principal.userId(), Feature.TAROT)) {
+    @PostMapping("/api/progress/generate-usage")
+    public ResponseEntity<ProgressResponse> generateUsage(@AuthPrincipal AuthenticatedUser principal) {
+        if (!usageService.consume(principal.userId(), Feature.GENERATE)) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }
         return ResponseEntity.ok(usageService.getProgress(principal.userId()));

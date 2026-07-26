@@ -7,11 +7,6 @@ const DIRECTION_BOOST = 2;
 const MIN_NUMBER = 1;
 const MAX_NUMBER = 45;
 
-export interface CardPick {
-  card: TarotCard;
-  direction: CardDirection;
-}
-
 export function cardSeedNumber(card: TarotCard): number {
   return card.number === 0 ? 22 : card.number;
 }
@@ -62,16 +57,6 @@ export function buildWeights(card: TarotCard, zodiac: ZodiacSign | null, directi
   return weights;
 }
 
-/** Same as buildWeights, but combines the seed+direction contribution of every pick (used for multi-card spreads). */
-export function buildWeightsForPicks(picks: CardPick[], zodiac: ZodiacSign | null): number[] {
-  const weights = baseWeights();
-  for (const pick of picks) {
-    addCardWeight(weights, pick.card, pick.direction);
-  }
-  addZodiacWeight(weights, zodiac);
-  return weights;
-}
-
 export function weightedSampleWithoutReplacement(weights: number[], count: number): number[] {
   const pool: { n: number; w: number }[] = [];
   for (let n = 1; n < weights.length; n++) {
@@ -94,12 +79,16 @@ export function weightedSampleWithoutReplacement(weights: number[], count: numbe
   return picked;
 }
 
-export function generateTarotNumbers(card: TarotCard, zodiac: ZodiacSign | null, direction: CardDirection): number[] {
+export function generateTarotNumberSets(
+  card: TarotCard,
+  zodiac: ZodiacSign | null,
+  direction: CardDirection,
+  count: number
+): number[][] {
   const weights = buildWeights(card, zodiac, direction);
-  return weightedSampleWithoutReplacement(weights, 6).sort((a, b) => a - b);
-}
-
-export function generateTarotNumbersForPicks(picks: CardPick[], zodiac: ZodiacSign | null): number[] {
-  const weights = buildWeightsForPicks(picks, zodiac);
-  return weightedSampleWithoutReplacement(weights, 6).sort((a, b) => a - b);
+  const sets: number[][] = [];
+  for (let i = 0; i < count; i++) {
+    sets.push(weightedSampleWithoutReplacement(weights, 6).sort((a, b) => a - b));
+  }
+  return sets;
 }
