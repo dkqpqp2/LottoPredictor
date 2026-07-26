@@ -548,9 +548,14 @@
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 
-.resetButton:hover {
+.resetButton:hover:not(:disabled) {
   color: var(--cosmic-text);
   border-color: var(--cosmic-gold);
+}
+
+.resetButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .saveButton {
