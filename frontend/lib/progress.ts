@@ -43,3 +43,17 @@ export async function consumeTarotUsage(token: string): Promise<ProgressResult> 
   }
   return res.json();
 }
+
+export async function consumeGenerateUsage(token: string): Promise<ProgressResult> {
+  const res = await fetch(`${API_BASE_URL}/api/progress/generate-usage`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 429) {
+    throw new Error("오늘 번호생성 횟수를 다 쓰셨어요. 등급을 올리면 더 뽑을 수 있어요.");
+  }
+  if (!res.ok) {
+    throw new Error("번호생성 처리에 실패했습니다.");
+  }
+  return res.json();
+}

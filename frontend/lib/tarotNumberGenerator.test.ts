@@ -3,6 +3,7 @@ import {
   buildWeights,
   buildWeightsForPicks,
   cardSeedNumber,
+  generateTarotNumberSets,
   generateTarotNumbers,
   generateTarotNumbersForPicks,
   weightedSampleWithoutReplacement,
@@ -174,5 +175,26 @@ describe("generateTarotNumbersForPicks", () => {
         expect(n).toBeLessThanOrEqual(45);
       }
     }
+  });
+});
+
+describe("generateTarotNumberSets", () => {
+  it("produces the requested number of independent 6-number sets", () => {
+    const sets = generateTarotNumberSets(star, aries, "up", 3);
+    expect(sets).toHaveLength(3);
+    for (const numbers of sets) {
+      expect(numbers).toHaveLength(6);
+      expect(new Set(numbers).size).toBe(6);
+      expect(numbers).toEqual([...numbers].sort((a, b) => a - b));
+      for (const n of numbers) {
+        expect(n).toBeGreaterThanOrEqual(1);
+        expect(n).toBeLessThanOrEqual(45);
+      }
+    }
+  });
+
+  it("returns exactly one set when count is 1", () => {
+    const sets = generateTarotNumberSets(star, null, "down", 1);
+    expect(sets).toHaveLength(1);
   });
 });

@@ -103,3 +103,17 @@ export function generateTarotNumbersForPicks(picks: CardPick[], zodiac: ZodiacSi
   const weights = buildWeightsForPicks(picks, zodiac);
   return weightedSampleWithoutReplacement(weights, 6).sort((a, b) => a - b);
 }
+
+export function generateTarotNumberSets(
+  card: TarotCard,
+  zodiac: ZodiacSign | null,
+  direction: CardDirection,
+  count: number
+): number[][] {
+  const weights = buildWeights(card, zodiac, direction);
+  const sets: number[][] = [];
+  for (let i = 0; i < count; i++) {
+    sets.push(weightedSampleWithoutReplacement(weights, 6).sort((a, b) => a - b));
+  }
+  return sets;
+}
