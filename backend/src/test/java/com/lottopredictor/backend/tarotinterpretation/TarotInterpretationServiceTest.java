@@ -1,6 +1,5 @@
 package com.lottopredictor.backend.tarotinterpretation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lottopredictor.backend.progress.Feature;
 import com.lottopredictor.backend.progress.UsageService;
 import org.junit.jupiter.api.Test;
@@ -33,8 +32,6 @@ class TarotInterpretationServiceTest {
     @Mock
     private ClaudeTarotInterpreter interpreter;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     private TarotInterpretationRequest sampleRequest() {
         return new TarotInterpretationRequest(
                 "WITH_ZODIAC",
@@ -48,7 +45,7 @@ class TarotInterpretationServiceTest {
         when(usageService.consume(1L, Feature.TAROT)).thenReturn(false);
 
         TarotInterpretationService service =
-                new TarotInterpretationService(repository, usageService, interpreter, objectMapper);
+                new TarotInterpretationService(repository, usageService, interpreter);
         Optional<TarotInterpretationResponse> result = service.interpret(1L, sampleRequest());
 
         assertThat(result).isEmpty();
@@ -63,7 +60,7 @@ class TarotInterpretationServiceTest {
         when(repository.save(any(TarotInterpretation.class))).thenAnswer(inv -> inv.getArgument(0));
 
         TarotInterpretationService service =
-                new TarotInterpretationService(repository, usageService, interpreter, objectMapper);
+                new TarotInterpretationService(repository, usageService, interpreter);
         Optional<TarotInterpretationResponse> result = service.interpret(1L, sampleRequest());
 
         assertThat(result).isPresent();
@@ -80,7 +77,7 @@ class TarotInterpretationServiceTest {
         when(interpreter.interpret(anyString())).thenThrow(new TarotInterpretationFailedException("boom", null));
 
         TarotInterpretationService service =
-                new TarotInterpretationService(repository, usageService, interpreter, objectMapper);
+                new TarotInterpretationService(repository, usageService, interpreter);
 
         assertThatThrownBy(() -> service.interpret(1L, sampleRequest()))
                 .isInstanceOf(TarotInterpretationFailedException.class);
@@ -95,7 +92,7 @@ class TarotInterpretationServiceTest {
                 "물병자리"
         );
         TarotInterpretationService service =
-                new TarotInterpretationService(repository, usageService, interpreter, objectMapper);
+                new TarotInterpretationService(repository, usageService, interpreter);
 
         assertThatThrownBy(() -> service.interpret(1L, request))
                 .isInstanceOf(ResponseStatusException.class)
@@ -110,7 +107,7 @@ class TarotInterpretationServiceTest {
     void interpretRejectsEmptyCardsWithoutConsumingQuotaOrCallingClaude() {
         TarotInterpretationRequest request = new TarotInterpretationRequest("WITH_ZODIAC", List.of(), "물병자리");
         TarotInterpretationService service =
-                new TarotInterpretationService(repository, usageService, interpreter, objectMapper);
+                new TarotInterpretationService(repository, usageService, interpreter);
 
         assertThatThrownBy(() -> service.interpret(1L, request))
                 .isInstanceOf(ResponseStatusException.class)
@@ -129,7 +126,7 @@ class TarotInterpretationServiceTest {
                 "물병자리"
         );
         TarotInterpretationService service =
-                new TarotInterpretationService(repository, usageService, interpreter, objectMapper);
+                new TarotInterpretationService(repository, usageService, interpreter);
 
         assertThatThrownBy(() -> service.interpret(1L, request))
                 .isInstanceOf(ResponseStatusException.class)
@@ -148,7 +145,7 @@ class TarotInterpretationServiceTest {
                 "가".repeat(21)
         );
         TarotInterpretationService service =
-                new TarotInterpretationService(repository, usageService, interpreter, objectMapper);
+                new TarotInterpretationService(repository, usageService, interpreter);
 
         assertThatThrownBy(() -> service.interpret(1L, request))
                 .isInstanceOf(ResponseStatusException.class)
@@ -168,7 +165,7 @@ class TarotInterpretationServiceTest {
         when(repository.findByUserIdOrderByCreatedAtDesc(1L)).thenReturn(List.of(entity));
 
         TarotInterpretationService service =
-                new TarotInterpretationService(repository, usageService, interpreter, objectMapper);
+                new TarotInterpretationService(repository, usageService, interpreter);
         List<TarotInterpretationResponse> history = service.getHistory(1L);
 
         assertThat(history).hasSize(1);

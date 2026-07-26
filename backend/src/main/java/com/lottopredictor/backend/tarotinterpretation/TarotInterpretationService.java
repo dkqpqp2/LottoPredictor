@@ -26,18 +26,16 @@ public class TarotInterpretationService {
     private final TarotInterpretationRepository repository;
     private final UsageService usageService;
     private final ClaudeTarotInterpreter interpreter;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public TarotInterpretationService(
             TarotInterpretationRepository repository,
             UsageService usageService,
-            ClaudeTarotInterpreter interpreter,
-            ObjectMapper objectMapper
+            ClaudeTarotInterpreter interpreter
     ) {
         this.repository = repository;
         this.usageService = usageService;
         this.interpreter = interpreter;
-        this.objectMapper = objectMapper;
     }
 
     @Transactional
