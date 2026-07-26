@@ -149,6 +149,7 @@ class UsageServiceTest {
         assertThat(progress.generateUsage()).isEqualTo(new ProgressResponse.UsageInfo(0, 3));
         assertThat(progress.maxSets()).isEqualTo(3);
         assertThat(progress.adjustableSets()).isFalse();
+        assertThat(progress.tierFloor()).isEqualTo(50);
     }
 
     @Test

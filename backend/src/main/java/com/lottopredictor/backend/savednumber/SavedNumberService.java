@@ -1,9 +1,12 @@
 package com.lottopredictor.backend.savednumber;
 
+import com.lottopredictor.backend.draw.LottoDraw;
 import com.lottopredictor.backend.draw.LottoDrawRepository;
+import com.lottopredictor.backend.draw.LottoMatchCalculator;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -42,12 +45,34 @@ public class SavedNumberService {
     }
 
     private SavedNumberResponse toResponse(SavedNumber entity) {
+        List<Integer> numbers = entity.numbers();
+        return lottoDrawRepository.findById(entity.getTargetDrawNo())
+                .map(draw -> buildAvailableResponse(entity, numbers, draw))
+                .orElseGet(() -> SavedNumberResponse.pending(
+                        entity.getId(), entity.getSource(), entity.getTargetDrawNo(), numbers, entity.getSavedAt()
+                ));
+    }
+
+    private SavedNumberResponse buildAvailableResponse(SavedNumber entity, List<Integer> numbers, LottoDraw draw) {
+        LottoMatchCalculator.MatchResult match = LottoMatchCalculator.calculate(numbers, draw);
+
+        List<Integer> actualNumbers = new ArrayList<>();
+        for (int n : draw.numbers()) {
+            actualNumbers.add(n);
+        }
+
         return new SavedNumberResponse(
                 entity.getId(),
                 entity.getSource(),
                 entity.getTargetDrawNo(),
-                entity.numbers(),
-                entity.getSavedAt()
+                numbers,
+                entity.getSavedAt(),
+                true,
+                match.matchCount(),
+                match.bonusMatch(),
+                match.rank(),
+                actualNumbers,
+                draw.getDrawDate().toString()
         );
     }
 }

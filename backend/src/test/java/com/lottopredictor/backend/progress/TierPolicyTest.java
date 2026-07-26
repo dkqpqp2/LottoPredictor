@@ -98,4 +98,12 @@ class TierPolicyTest {
         assertThat(TierPolicy.effectiveTier("LOTTO_GOD", 0)).isEqualTo(Tier.LOTTO_GOD);
         assertThat(TierPolicy.effectiveTier("BEGINNER", 10_000)).isEqualTo(Tier.BEGINNER);
     }
+
+    @Test
+    void tierFloorMatchesEachTiersStartingPointThreshold() {
+        assertThat(TierPolicy.tierFloor(Tier.BEGINNER)).isEqualTo(0);
+        assertThat(TierPolicy.tierFloor(Tier.APPRENTICE)).isEqualTo(50);
+        assertThat(TierPolicy.tierFloor(Tier.EXPERT)).isEqualTo(150);
+        assertThat(TierPolicy.tierFloor(Tier.LOTTO_GOD)).isEqualTo(150);
+    }
 }

@@ -52,15 +52,21 @@
 
 .tierCard {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.75rem;
   padding: 1.1rem 1.5rem;
   background: var(--surface);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
+}
+
+.tierHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .tierBadge {
@@ -72,6 +78,21 @@
 .tierMeta {
   font-size: 0.8rem;
   color: var(--text-secondary);
+}
+
+.tierBarTrack {
+  width: 100%;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--surface-hover);
+  overflow: hidden;
+}
+
+.tierBarFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.2s ease;
 }
 
 .error {
@@ -156,6 +177,10 @@
   font-size: 0.75rem;
   color: #ffffff;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+.ballMatched {
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
 .itemMeta {

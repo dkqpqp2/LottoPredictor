@@ -8,6 +8,12 @@ export interface SavedNumberResult {
   targetDrawNo: number;
   numbers: number[];
   savedAt: string;
+  resultAvailable: boolean;
+  matchCount: number | null;
+  bonusMatch: boolean | null;
+  rank: string | null;
+  actualNumbers: number[] | null;
+  actualDrawDate: string | null;
 }
 
 export async function saveNumbers(

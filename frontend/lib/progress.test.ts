@@ -25,6 +25,7 @@ describe("getProgress", () => {
       generateUsage: { used: 0, limit: 1 },
       maxSets: 2,
       adjustableSets: false,
+      tierFloor: 0,
     };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => payload }));
 
@@ -54,6 +55,7 @@ describe("consumeTarotUsage", () => {
       generateUsage: { used: 0, limit: 1 },
       maxSets: 2,
       adjustableSets: false,
+      tierFloor: 0,
     };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => payload }));
 

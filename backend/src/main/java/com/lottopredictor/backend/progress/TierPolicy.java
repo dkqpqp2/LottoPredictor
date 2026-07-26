@@ -57,4 +57,12 @@ public final class TierPolicy {
             case EXPERT, LOTTO_GOD -> null;
         };
     }
+
+    public static int tierFloor(Tier tier) {
+        return switch (tier) {
+            case BEGINNER -> 0;
+            case APPRENTICE -> 50;
+            case EXPERT, LOTTO_GOD -> 150;
+        };
+    }
 }

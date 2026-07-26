@@ -3,7 +3,19 @@ import { groupSavedNumbers } from "./groupSavedNumbers";
 import type { SavedNumberResult } from "./savedNumbers";
 
 function item(savedAt: string, id = 1): SavedNumberResult {
-  return { id, source: "GENERATE", targetDrawNo: 1181, numbers: [1, 2, 3, 4, 5, 6], savedAt };
+  return {
+    id,
+    source: "GENERATE",
+    targetDrawNo: 1181,
+    numbers: [1, 2, 3, 4, 5, 6],
+    savedAt,
+    resultAvailable: false,
+    matchCount: null,
+    bonusMatch: null,
+    rank: null,
+    actualNumbers: null,
+    actualDrawDate: null,
+  };
 }
 
 describe("groupSavedNumbers", () => {

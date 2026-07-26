@@ -8,6 +8,7 @@ export interface ProgressResult {
   generateUsage: { used: number; limit: number };
   maxSets: number;
   adjustableSets: boolean;
+  tierFloor: number;
 }
 
 const UNLIMITED_THRESHOLD = 1_000_000;

@@ -14,6 +14,14 @@ const SOURCE_LABELS: Record<SavedNumberResult["source"], string> = {
   TAROT: "타로",
 };
 
+function tierProgressFraction(totalPoints: number, tierFloor: number, pointsToNextTier: number | null): number {
+  if (pointsToNextTier == null) return 1;
+  const ceiling = totalPoints + pointsToNextTier;
+  const span = ceiling - tierFloor;
+  if (span <= 0) return 1;
+  return Math.min(1, Math.max(0, (totalPoints - tierFloor) / span));
+}
+
 export default function MyPage() {
   const { auth } = useAuth();
   const { progress } = useProgress();
@@ -54,13 +62,25 @@ export default function MyPage() {
 
       {progress && (
         <div className={styles.tierCard}>
-          <span className={styles.tierBadge}>{progress.tier}</span>
-          <span className={styles.tierMeta}>
-            누적 {progress.totalPoints}P
-            {progress.pointsToNextTier != null
-              ? ` · 다음 등급까지 ${progress.pointsToNextTier}P`
-              : " · 최고 등급"}
-          </span>
+          <div className={styles.tierHeader}>
+            <span className={styles.tierBadge}>{progress.tier}</span>
+            <span className={styles.tierMeta}>
+              누적 {progress.totalPoints}P
+              {progress.pointsToNextTier != null
+                ? ` · 다음 등급까지 ${progress.pointsToNextTier}P`
+                : " · 최고 등급"}
+            </span>
+          </div>
+          <div className={styles.tierBarTrack}>
+            <div
+              className={styles.tierBarFill}
+              style={{
+                width: `${
+                  tierProgressFraction(progress.totalPoints, progress.tierFloor, progress.pointsToNextTier) * 100
+                }%`,
+              }}
+            />
+          </div>
         </div>
       )}
 
@@ -80,13 +100,21 @@ export default function MyPage() {
                     <span className={styles.sourceBadge}>{SOURCE_LABELS[item.source]}</span>
                     <div className={styles.itemBalls}>
                       {item.numbers.map((n) => (
-                        <span key={n} className={styles.ball} style={{ backgroundColor: getBallColor(n) }}>
+                        <span
+                          key={n}
+                          className={`${styles.ball} ${
+                            item.resultAvailable && item.actualNumbers?.includes(n) ? styles.ballMatched : ""
+                          }`}
+                          style={{ backgroundColor: getBallColor(n) }}
+                        >
                           {n}
                         </span>
                       ))}
                     </div>
                     <span className={styles.itemMeta}>
                       {item.targetDrawNo}회 대상 · {new Date(item.savedAt).toLocaleDateString("ko-KR")}
+                      {item.resultAvailable &&
+                        ` · ${item.matchCount}개 일치${item.rank ? ` · ${item.rank}` : " · 낙첨"}`}
                     </span>
                   </div>
                 ))}

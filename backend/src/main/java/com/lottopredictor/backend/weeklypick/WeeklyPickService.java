@@ -2,6 +2,7 @@ package com.lottopredictor.backend.weeklypick;
 
 import com.lottopredictor.backend.draw.LottoDraw;
 import com.lottopredictor.backend.draw.LottoDrawRepository;
+import com.lottopredictor.backend.draw.LottoMatchCalculator;
 import com.lottopredictor.backend.generate.GenerateResult;
 import com.lottopredictor.backend.generate.NumberGenerationService;
 import org.springframework.data.domain.PageRequest;
@@ -12,9 +13,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class WeeklyPickService {
@@ -86,15 +85,7 @@ public class WeeklyPickService {
 
     private WeeklyPickResult buildAvailableResult(WeeklyPick pick, LottoDraw draw) {
         List<Integer> pickNumbers = pick.numbers();
-
-        Set<Integer> actualMainSet = new HashSet<>();
-        for (int n : draw.numbers()) {
-            actualMainSet.add(n);
-        }
-
-        int matchCount = (int) pickNumbers.stream().filter(actualMainSet::contains).count();
-        boolean bonusMatch = pickNumbers.contains(draw.getBonusNum());
-        String rank = LottoRank.forMatch(matchCount, bonusMatch);
+        LottoMatchCalculator.MatchResult match = LottoMatchCalculator.calculate(pickNumbers, draw);
 
         List<Integer> actualNumbers = new ArrayList<>();
         for (int n : draw.numbers()) {
@@ -106,9 +97,9 @@ public class WeeklyPickService {
                 pick.getTargetDrawNo(),
                 pickNumbers,
                 true,
-                matchCount,
-                bonusMatch,
-                rank,
+                match.matchCount(),
+                match.bonusMatch(),
+                match.rank(),
                 actualNumbers,
                 draw.getBonusNum(),
                 draw.getDrawDate().toString()
