@@ -15,6 +15,11 @@ const SOURCE_LABELS: Record<SavedNumberResult["source"], string> = {
   TAROT: "타로",
 };
 
+function formatWeekLabel(weekStart: string): string {
+  const [year, month, day] = weekStart.split("-").map(Number);
+  return `${year}년 ${month}월 ${day}일`;
+}
+
 function tierProgressFraction(totalPoints: number, tierFloor: number, pointsToNextTier: number | null): number {
   if (pointsToNextTier == null) return 1;
   const ceiling = totalPoints + pointsToNextTier;
@@ -126,7 +131,7 @@ export default function MyPage() {
           <h2 className={styles.monthLabel}>{month.monthLabel}</h2>
           {month.weeks.map((week) => (
             <div key={week.weekStart} className={styles.weekGroup}>
-              <span className={styles.weekLabel}>{week.weekStart} 주</span>
+              <span className={styles.weekLabel}>{formatWeekLabel(week.weekStart)}</span>
               <div className={styles.itemList}>
                 {week.items.map((item) => (
                   <div key={item.id} className={styles.item}>
