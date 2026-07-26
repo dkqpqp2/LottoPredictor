@@ -35,6 +35,8 @@ export default function MyPage() {
   const [error, setError] = useState<string | null>(null);
   const [interpretations, setInterpretations] = useState<TarotInterpretationResult[]>([]);
   const [interpretationsError, setInterpretationsError] = useState<string | null>(null);
+  const [viewYear, setViewYear] = useState(() => new Date().getFullYear());
+  const [viewMonth, setViewMonth] = useState(() => new Date().getMonth() + 1);
 
   useEffect(() => {
     if (!auth) return;
@@ -45,6 +47,26 @@ export default function MyPage() {
       .then(setInterpretations)
       .catch(() => setInterpretationsError("타로 해석 기록을 불러오지 못했습니다."));
   }, [auth]);
+
+  function handlePrevMonth() {
+    setViewMonth((m) => {
+      if (m === 1) {
+        setViewYear((y) => y - 1);
+        return 12;
+      }
+      return m - 1;
+    });
+  }
+
+  function handleNextMonth() {
+    setViewMonth((m) => {
+      if (m === 12) {
+        setViewYear((y) => y + 1);
+        return 1;
+      }
+      return m + 1;
+    });
+  }
 
   if (!auth) {
     return (
@@ -62,7 +84,13 @@ export default function MyPage() {
     );
   }
 
-  const groups = groupSavedNumbers(savedNumbers);
+  const today = new Date();
+  const isCurrentMonth = viewYear === today.getFullYear() && viewMonth === today.getMonth() + 1;
+  const monthItems = savedNumbers.filter((item) => {
+    const d = new Date(item.savedAt);
+    return d.getFullYear() === viewYear && d.getMonth() + 1 === viewMonth;
+  });
+  const weeks = groupSavedNumbers(monthItems)[0]?.weeks ?? [];
 
   return (
     <div className={styles.page}>
@@ -124,43 +152,69 @@ export default function MyPage() {
         </div>
       )}
 
-      {!error && groups.length === 0 && <p className={styles.empty}>아직 저장한 번호가 없어요.</p>}
+      {!error && savedNumbers.length === 0 && <p className={styles.empty}>아직 저장한 번호가 없어요.</p>}
 
-      {groups.map((month) => (
-        <div key={month.monthLabel} className={styles.monthGroup}>
-          <h2 className={styles.monthLabel}>{month.monthLabel}</h2>
-          {month.weeks.map((week) => (
-            <div key={week.weekStart} className={styles.weekGroup}>
-              <span className={styles.weekLabel}>{formatWeekLabel(week.weekStart)}</span>
-              <div className={styles.itemList}>
-                {week.items.map((item) => (
-                  <div key={item.id} className={styles.item}>
-                    <span className={styles.sourceBadge}>{SOURCE_LABELS[item.source]}</span>
-                    <div className={styles.itemBalls}>
-                      {item.numbers.map((n) => (
-                        <span
-                          key={n}
-                          className={`${styles.ball} ${
-                            item.resultAvailable && item.actualNumbers?.includes(n) ? styles.ballMatched : ""
-                          }`}
-                          style={{ backgroundColor: getBallColor(n) }}
-                        >
-                          {n}
-                        </span>
-                      ))}
-                    </div>
-                    <span className={styles.itemMeta}>
-                      {item.targetDrawNo}회 대상 · {new Date(item.savedAt).toLocaleDateString("ko-KR")}
-                      {item.resultAvailable &&
-                        ` · ${item.matchCount}개 일치${item.rank ? ` · ${item.rank}` : " · 낙첨"}`}
-                    </span>
-                  </div>
-                ))}
-              </div>
+      {!error && savedNumbers.length > 0 && (
+        <>
+          <div className={styles.monthNav}>
+            <button type="button" className={styles.monthNavArrow} onClick={handlePrevMonth} aria-label="이전 달">
+              ‹
+            </button>
+            <div className={styles.monthNavCenter}>
+              <span className={styles.monthNavLabel}>
+                {viewYear}년 {viewMonth}월
+              </span>
+              {isCurrentMonth && <span className={styles.monthNavBadge}>이번 달</span>}
             </div>
-          ))}
-        </div>
-      ))}
+            <button
+              type="button"
+              className={styles.monthNavArrow}
+              onClick={handleNextMonth}
+              disabled={isCurrentMonth}
+              aria-label="다음 달"
+            >
+              ›
+            </button>
+          </div>
+
+          {weeks.length === 0 ? (
+            <p className={styles.empty}>이 달에는 저장한 번호가 없어요.</p>
+          ) : (
+            <div className={styles.monthGroup}>
+              {weeks.map((week) => (
+                <div key={week.weekStart} className={styles.weekGroup}>
+                  <span className={styles.weekLabel}>{formatWeekLabel(week.weekStart)}</span>
+                  <div className={styles.itemList}>
+                    {week.items.map((item) => (
+                      <div key={item.id} className={styles.item}>
+                        <span className={styles.sourceBadge}>{SOURCE_LABELS[item.source]}</span>
+                        <div className={styles.itemBalls}>
+                          {item.numbers.map((n) => (
+                            <span
+                              key={n}
+                              className={`${styles.ball} ${
+                                item.resultAvailable && item.actualNumbers?.includes(n) ? styles.ballMatched : ""
+                              }`}
+                              style={{ backgroundColor: getBallColor(n) }}
+                            >
+                              {n}
+                            </span>
+                          ))}
+                        </div>
+                        <span className={styles.itemMeta}>
+                          {item.targetDrawNo}회 대상 · {new Date(item.savedAt).toLocaleDateString("ko-KR")}
+                          {item.resultAvailable &&
+                            ` · ${item.matchCount}개 일치${item.rank ? ` · ${item.rank}` : " · 낙첨"}`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

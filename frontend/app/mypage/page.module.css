@@ -107,6 +107,59 @@
   text-align: center;
 }
 
+.monthNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.monthNavArrow {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.monthNavArrow:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.monthNavArrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.monthNavCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.monthNavLabel {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.monthNavBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
 .monthGroup {
   display: flex;
   flex-direction: column;
