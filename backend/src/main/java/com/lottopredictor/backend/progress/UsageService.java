@@ -5,10 +5,12 @@ import com.lottopredictor.backend.auth.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 @Service
 public class UsageService {
 
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final int USAGE_POINTS = 1;
     private static final int VISIT_POINTS = 2;
     private static final int STREAK_BONUS_POINTS = 10;
@@ -24,7 +26,7 @@ public class UsageService {
 
     public void recordVisit(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(KST);
         if (today.equals(user.getLastActiveDate())) {
             return;
         }
@@ -46,7 +48,7 @@ public class UsageService {
         Tier tier = TierPolicy.effectiveTier(user.getForcedTier(), user.getTotalPoints());
         int limit = TierPolicy.dailyLimit(tier, feature);
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(KST);
         DailyUsage usage = dailyUsageRepository
                 .findByUserIdAndUsageDateAndFeature(userId, today, feature)
                 .orElseGet(() -> new DailyUsage(userId, today, feature, 0));
@@ -65,7 +67,7 @@ public class UsageService {
     public ProgressResponse getProgress(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
         Tier tier = TierPolicy.effectiveTier(user.getForcedTier(), user.getTotalPoints());
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(KST);
         int tarotUsed = usageCountFor(userId, today, Feature.TAROT);
         int generateUsed = usageCountFor(userId, today, Feature.GENERATE);
         return new ProgressResponse(

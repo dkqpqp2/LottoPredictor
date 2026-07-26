@@ -9,10 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
 public class AdminService {
+
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     private final UserRepository userRepository;
     private final DailyUsageRepository dailyUsageRepository;
@@ -35,7 +38,7 @@ public class AdminService {
 
     @Transactional
     public void resetTodayUsage(Long userId) {
-        dailyUsageRepository.deleteByUserIdAndUsageDate(userId, LocalDate.now());
+        dailyUsageRepository.deleteByUserIdAndUsageDate(userId, LocalDate.now(KST));
     }
 
     private AdminUserResponse toResponse(User user) {
