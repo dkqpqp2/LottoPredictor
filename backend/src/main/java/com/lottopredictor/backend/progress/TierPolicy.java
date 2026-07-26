@@ -14,7 +14,7 @@ public final class TierPolicy {
             Tier.BEGINNER, new DailyLimits(1, 1),
             Tier.APPRENTICE, new DailyLimits(1, 3),
             Tier.EXPERT, new DailyLimits(1, 5),
-            Tier.LOTTO_GOD, new DailyLimits(Integer.MAX_VALUE, Integer.MAX_VALUE)
+            Tier.LOTTO_GOD, new DailyLimits(1, Integer.MAX_VALUE)
     );
 
     private static final Map<Tier, Integer> MAX_SETS = Map.of(

@@ -45,16 +45,17 @@ class TierPolicyTest {
     }
 
     @Test
-    void tarotIsCappedAtOnePerDayForEveryReachableTier() {
+    void tarotIsCappedAtOnePerDayForEveryTierIncludingLottoGod() {
         assertThat(TierPolicy.dailyLimit(Tier.BEGINNER, Feature.TAROT)).isEqualTo(1);
         assertThat(TierPolicy.dailyLimit(Tier.APPRENTICE, Feature.TAROT)).isEqualTo(1);
         assertThat(TierPolicy.dailyLimit(Tier.EXPERT, Feature.TAROT)).isEqualTo(1);
+        assertThat(TierPolicy.dailyLimit(Tier.LOTTO_GOD, Feature.TAROT)).isEqualTo(1);
     }
 
     @Test
-    void lottoGodHasEffectivelyUnlimitedUses() {
-        assertThat(TierPolicy.dailyLimit(Tier.LOTTO_GOD, Feature.TAROT)).isEqualTo(Integer.MAX_VALUE);
+    void lottoGodHasUnlimitedGenerateUsesButNotTarot() {
         assertThat(TierPolicy.dailyLimit(Tier.LOTTO_GOD, Feature.GENERATE)).isEqualTo(Integer.MAX_VALUE);
+        assertThat(TierPolicy.dailyLimit(Tier.LOTTO_GOD, Feature.TAROT)).isEqualTo(1);
     }
 
     @Test
