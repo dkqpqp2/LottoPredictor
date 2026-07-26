@@ -71,9 +71,14 @@
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
-.modeButton:hover {
+.modeButton:hover:not(:disabled) {
   border-color: var(--cosmic-gold);
   background: var(--cosmic-gold-soft);
+}
+
+.modeButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .modeButtonUsage {

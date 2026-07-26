@@ -111,6 +111,9 @@ export default function Home() {
     setDay(null);
   }
 
+  const aiQuotaExhausted = progress ? progress.tarotUsage.used >= progress.tarotUsage.limit : false;
+  const generateQuotaExhausted = progress ? progress.generateUsage.used >= progress.generateUsage.limit : false;
+
   const isSingleCardMode = viewMode === "with-zodiac" || viewMode === "number-draw";
   const zodiacRequired = viewMode === "with-zodiac";
   const canPickCard = isSingleCardMode && (!zodiacRequired || zodiac !== null);
@@ -346,23 +349,44 @@ export default function Home() {
 
       {viewMode === "unset" && (
         <div className={styles.modeChoice}>
-          <button type="button" className={styles.modeButton} onClick={() => setViewMode("tarot-only")}>
+          <button
+            type="button"
+            className={styles.modeButton}
+            onClick={() => setViewMode("tarot-only")}
+            disabled={aiQuotaExhausted}
+          >
             <span>타로만 보기</span>
             {progress && (
-              <span className={styles.modeButtonUsage}>AI 해석 {formatRemainingUsage(progress.tarotUsage)} 남음</span>
+              <span className={styles.modeButtonUsage}>
+                {aiQuotaExhausted ? "내일 다시 시도해주세요" : `AI 해석 ${formatRemainingUsage(progress.tarotUsage)} 남음`}
+              </span>
             )}
           </button>
-          <button type="button" className={styles.modeButton} onClick={() => setViewMode("with-zodiac")}>
+          <button
+            type="button"
+            className={styles.modeButton}
+            onClick={() => setViewMode("with-zodiac")}
+            disabled={aiQuotaExhausted}
+          >
             <span>생년월일로 별자리도 함께 보기</span>
             {progress && (
-              <span className={styles.modeButtonUsage}>AI 해석 {formatRemainingUsage(progress.tarotUsage)} 남음</span>
+              <span className={styles.modeButtonUsage}>
+                {aiQuotaExhausted ? "내일 다시 시도해주세요" : `AI 해석 ${formatRemainingUsage(progress.tarotUsage)} 남음`}
+              </span>
             )}
           </button>
-          <button type="button" className={styles.modeButton} onClick={() => setViewMode("number-draw")}>
+          <button
+            type="button"
+            className={styles.modeButton}
+            onClick={() => setViewMode("number-draw")}
+            disabled={generateQuotaExhausted}
+          >
             <span>번호 뽑기용 타로</span>
             {progress && (
               <span className={styles.modeButtonUsage}>
-                번호생성 {formatRemainingUsage(progress.generateUsage)} 남음
+                {generateQuotaExhausted
+                  ? "내일 다시 시도해주세요"
+                  : `번호생성 ${formatRemainingUsage(progress.generateUsage)} 남음`}
               </span>
             )}
           </button>
