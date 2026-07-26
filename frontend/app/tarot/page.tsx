@@ -375,7 +375,7 @@ export default function Home() {
         </button>
       )}
 
-      {isSingleCardMode && (
+      {isSingleCardMode && !selected && (
         <div className={styles.card}>
           <span className={styles.fieldLabel}>생년월일{viewMode === "number-draw" ? " (선택)" : ""}</span>
           <select
@@ -544,7 +544,6 @@ export default function Home() {
                 종합 해석 보기
               </button>
               {interpretationError && <p className={styles.hint}>{interpretationError}</p>}
-              {!zodiac && <p className={styles.hint}>생년월일을 입력하면 별자리 운도 함께 반영돼요.</p>}
             </>
           )}
 
