@@ -2,19 +2,24 @@ package com.lottopredictor.backend.admin;
 
 import com.lottopredictor.backend.auth.User;
 import com.lottopredictor.backend.auth.UserRepository;
+import com.lottopredictor.backend.progress.DailyUsageRepository;
 import com.lottopredictor.backend.progress.Tier;
 import com.lottopredictor.backend.progress.TierPolicy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class AdminService {
 
     private final UserRepository userRepository;
+    private final DailyUsageRepository dailyUsageRepository;
 
-    public AdminService(UserRepository userRepository) {
+    public AdminService(UserRepository userRepository, DailyUsageRepository dailyUsageRepository) {
         this.userRepository = userRepository;
+        this.dailyUsageRepository = dailyUsageRepository;
     }
 
     public List<AdminUserResponse> listUsers() {
@@ -26,6 +31,11 @@ public class AdminService {
         user.setForcedTier(tier);
         userRepository.save(user);
         return toResponse(user);
+    }
+
+    @Transactional
+    public void resetTodayUsage(Long userId) {
+        dailyUsageRepository.deleteByUserIdAndUsageDate(userId, LocalDate.now());
     }
 
     private AdminUserResponse toResponse(User user) {

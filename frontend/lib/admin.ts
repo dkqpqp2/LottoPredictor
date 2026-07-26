@@ -36,3 +36,16 @@ export async function setUserTier(userId: number, tier: string | null, token: st
   }
   return res.json();
 }
+
+export async function resetUserUsage(userId: number, token: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/admin/users/${userId}/reset-usage`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 403) {
+    throw new Error("관리자 계정만 이용할 수 있어요.");
+  }
+  if (!res.ok) {
+    throw new Error("횟수 초기화에 실패했습니다.");
+  }
+}

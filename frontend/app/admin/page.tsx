@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { triggerCrawl, type SyncResult } from "../../lib/api";
-import { getAdminUsers, setUserTier, type AdminUser } from "../../lib/admin";
+import { getAdminUsers, setUserTier, resetUserUsage, type AdminUser } from "../../lib/admin";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
 import { getKakaoAuthorizeUrl } from "../../lib/auth";
@@ -27,6 +27,7 @@ export default function AdminPage() {
   const [usersError, setUsersError] = useState<string | null>(null);
   const [selections, setSelections] = useState<Record<number, string>>({});
   const [savingUserId, setSavingUserId] = useState<number | null>(null);
+  const [resettingUserId, setResettingUserId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!auth || !auth.isAdmin) return;
@@ -66,6 +67,20 @@ export default function AdminPage() {
       setUsersError(err instanceof Error ? err.message : "등급 변경에 실패했습니다.");
     } finally {
       setSavingUserId(null);
+    }
+  }
+
+  async function handleResetUsage(userId: number) {
+    if (!auth) return;
+    setResettingUserId(userId);
+    setUsersError(null);
+    try {
+      await resetUserUsage(userId, auth.token);
+      refreshProgress();
+    } catch (err) {
+      setUsersError(err instanceof Error ? err.message : "횟수 초기화에 실패했습니다.");
+    } finally {
+      setResettingUserId(null);
     }
   }
 
@@ -175,6 +190,14 @@ export default function AdminPage() {
                   disabled={savingUserId === user.id}
                 >
                   {savingUserId === user.id ? "적용 중..." : "적용"}
+                </button>
+                <button
+                  type="button"
+                  className={styles.resetButton}
+                  onClick={() => handleResetUsage(user.id)}
+                  disabled={resettingUserId === user.id}
+                >
+                  {resettingUserId === user.id ? "초기화 중..." : "오늘 횟수 초기화"}
                 </button>
               </div>
             </div>

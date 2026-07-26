@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface DailyUsageRepository extends JpaRepository<DailyUsage, Long> {
 
     Optional<DailyUsage> findByUserIdAndUsageDateAndFeature(Long userId, LocalDate usageDate, Feature feature);
+
+    void deleteByUserIdAndUsageDate(Long userId, LocalDate usageDate);
 }

@@ -48,4 +48,16 @@ public class AdminController {
         }
         return ResponseEntity.ok(adminService.setForcedTier(userId, request.tier()));
     }
+
+    @PostMapping("/users/{userId}/reset-usage")
+    public ResponseEntity<Void> resetUsage(
+            @PathVariable Long userId,
+            @AuthPrincipal AuthenticatedUser principal
+    ) {
+        if (!adminUserId.equals(principal.userId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        adminService.resetTodayUsage(userId);
+        return ResponseEntity.ok().build();
+    }
 }
