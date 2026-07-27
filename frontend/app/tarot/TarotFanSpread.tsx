@@ -33,11 +33,15 @@ export default function TarotFanSpread({ cards, onPick, dealKey }: TarotFanSprea
   // every time dealKey changes (the "다시 섞기" button). Does NOT replay when
   // `cards` merely shrinks by one (a card was picked) — dealKey stays the same
   // in that case, so the remaining cards just reflow via the CSS transition.
-  useEffect(() => {
+  useLayoutEffect(() => {
     setDealt(false);
+  }, [dealKey]);
+
+  useEffect(() => {
+    if (dealt) return;
     const id = requestAnimationFrame(() => setDealt(true));
     return () => cancelAnimationFrame(id);
-  }, [dealKey]);
+  }, [dealt]);
 
   return (
     <div ref={containerRef} className={styles.fanContainer}>

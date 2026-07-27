@@ -494,17 +494,21 @@ export default function Home() {
         </div>
       )}
 
-      {viewMode === "tarot-only" && nextPositionLabel && (
+      {viewMode === "tarot-only" && spreadSlots.length < SPREAD_SIZE && (
         <div className={styles.spreadWrapper}>
-          <div className={styles.spreadHintRow}>
-            <p className={styles.hint}>
-              "{nextPositionLabel}" 카드를 골라주세요. ({spreadSlots.length + 1}/{SPREAD_SIZE})
-            </p>
-            <button type="button" className={styles.reshuffleButton} onClick={handleReshuffleFan}>
-              다시 섞기
-            </button>
+          {nextPositionLabel && (
+            <div className={styles.spreadHintRow}>
+              <p className={styles.hint}>
+                "{nextPositionLabel}" 카드를 골라주세요. ({spreadSlots.length + 1}/{SPREAD_SIZE})
+              </p>
+              <button type="button" className={styles.reshuffleButton} onClick={handleReshuffleFan}>
+                다시 섞기
+              </button>
+            </div>
+          )}
+          <div style={revealingCard ? { display: "none" } : undefined}>
+            <TarotFanSpread cards={fanDeck} onPick={handleCardClick} dealKey={dealKey} />
           </div>
-          <TarotFanSpread cards={fanDeck} onPick={handleCardClick} dealKey={dealKey} />
         </div>
       )}
 
