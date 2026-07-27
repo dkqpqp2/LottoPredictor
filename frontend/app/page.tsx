@@ -5,7 +5,7 @@ const FEATURES = [
   {
     href: "/tarot",
     title: "타로 운세",
-    description: "카드를 뽑고 방향을 정해 나만의 타로 리딩과 행운의 번호를 받아보세요.",
+    description: "AI 종합 해석과 별자리 운세, 행운의 번호까지 카드 한 장으로 받아보세요.",
   },
   {
     href: "/generate",
