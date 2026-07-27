@@ -4,11 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
 import { getBallColor } from "../../lib/lottoBall";
-import { DIRECTION_LABELS, TAROT_CARDS, shuffleCards, type CardDirection, type TarotCard } from "../../lib/tarotCards";
+import { DIRECTION_LABELS, TAROT_CARDS, buildFanDeck, type CardDirection, type TarotCard } from "../../lib/tarotCards";
 import { detectDragDirection } from "../../lib/dragDirection";
 import { generateTarotNumberSets } from "../../lib/tarotNumberGenerator";
 import { getZodiacSign, type ZodiacSign } from "../../lib/zodiac";
 import LottoDrawAnimation from "../components/LottoDrawAnimation";
+import TarotFanSpread from "./TarotFanSpread";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
 import { consumeGenerateUsage, formatRemainingUsage } from "../../lib/progress";
@@ -45,7 +46,8 @@ export default function Home() {
   const [year, setYear] = useState<number | "">("");
   const [month, setMonth] = useState(1);
   const [day, setDay] = useState<number | null>(null);
-  const [deck, setDeck] = useState<TarotCard[]>(() => shuffleCards(TAROT_CARDS));
+  const [fanDeck, setFanDeck] = useState<TarotCard[]>(() => buildFanDeck(TAROT_CARDS, new Set()));
+  const [dealKey, setDealKey] = useState(0);
 
   // single-card modes ("with-zodiac", "number-draw")
   const [selected, setSelected] = useState<TarotCard | null>(null);
@@ -134,8 +136,15 @@ export default function Home() {
     } else if (viewMode === "tarot-only") {
       if (spreadSlots.length >= SPREAD_SIZE || revealingCard) return;
       setSpreadSlots((prev) => [...prev, { card, direction: null }]);
-      setDeck((prev) => prev.filter((c) => c.number !== card.number));
+      setFanDeck((prev) => prev.filter((c) => c.number !== card.number));
     }
+  }
+
+  function handleReshuffleFan() {
+    const exclude =
+      viewMode === "tarot-only" ? new Set(spreadSlots.map((s) => s.card.number)) : new Set<number>();
+    setFanDeck(buildFanDeck(TAROT_CARDS, exclude));
+    setDealKey((k) => k + 1);
   }
 
   function handlePointerDown(e: React.PointerEvent) {
@@ -276,7 +285,8 @@ export default function Home() {
   }
 
   function handleReset() {
-    setDeck(shuffleCards(TAROT_CARDS));
+    setFanDeck(buildFanDeck(TAROT_CARDS, new Set()));
+    setDealKey((k) => k + 1);
     setSelected(null);
     setDirection(null);
     setSpreadSlots([]);
@@ -474,41 +484,27 @@ export default function Home() {
 
       {isSingleCardMode && !selected && canPickCard && (
         <div className={styles.spreadWrapper}>
-          <p className={styles.hint}>카드 한 장을 골라주세요.</p>
-          <div className={styles.spread}>
-            {deck.map((card, i) => (
-              <button
-                key={card.number}
-                type="button"
-                className={styles.cardBack}
-                onClick={() => handleCardClick(card)}
-                aria-label={`카드 ${i + 1}`}
-              >
-                <span className={styles.cardBackSymbol}>✦</span>
-              </button>
-            ))}
+          <div className={styles.spreadHintRow}>
+            <p className={styles.hint}>카드 한 장을 골라주세요.</p>
+            <button type="button" className={styles.reshuffleButton} onClick={handleReshuffleFan}>
+              다시 섞기
+            </button>
           </div>
+          <TarotFanSpread cards={fanDeck} onPick={handleCardClick} dealKey={dealKey} />
         </div>
       )}
 
       {viewMode === "tarot-only" && nextPositionLabel && (
         <div className={styles.spreadWrapper}>
-          <p className={styles.hint}>
-            "{nextPositionLabel}" 카드를 골라주세요. ({spreadSlots.length + 1}/{SPREAD_SIZE})
-          </p>
-          <div className={styles.spread}>
-            {deck.map((card, i) => (
-              <button
-                key={card.number}
-                type="button"
-                className={styles.cardBack}
-                onClick={() => handleCardClick(card)}
-                aria-label={`카드 ${i + 1}`}
-              >
-                <span className={styles.cardBackSymbol}>✦</span>
-              </button>
-            ))}
+          <div className={styles.spreadHintRow}>
+            <p className={styles.hint}>
+              "{nextPositionLabel}" 카드를 골라주세요. ({spreadSlots.length + 1}/{SPREAD_SIZE})
+            </p>
+            <button type="button" className={styles.reshuffleButton} onClick={handleReshuffleFan}>
+              다시 섞기
+            </button>
           </div>
+          <TarotFanSpread cards={fanDeck} onPick={handleCardClick} dealKey={dealKey} />
         </div>
       )}
 

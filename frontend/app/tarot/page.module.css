@@ -242,28 +242,28 @@
   gap: 1rem;
 }
 
-.spread {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(3.2rem, 1fr));
-  gap: 0.5rem;
-}
-
-.cardBack {
-  aspect-ratio: 2 / 3;
-  border-radius: 8px;
-  border: 1px solid var(--cosmic-gold-soft);
-  background: linear-gradient(160deg, #2a1a5e, #171034);
-  color: var(--cosmic-gold);
-  font-size: 1rem;
-  cursor: pointer;
+.spreadHintRow {
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
-.cardBack:hover {
-  transform: translateY(-3px);
+.reshuffleButton {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--cosmic-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cosmic-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.reshuffleButton:hover {
+  color: var(--cosmic-text);
   border-color: var(--cosmic-gold);
 }
 
