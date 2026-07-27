@@ -1,0 +1,35 @@
+.fanContainer {
+  position: relative;
+  height: 220px;
+  margin: 0 auto;
+  max-width: 32rem;
+}
+
+.fanCard {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 3.2rem;
+  aspect-ratio: 2 / 3;
+  margin-left: -1.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--cosmic-gold-soft);
+  background: linear-gradient(160deg, #2a1a5e, #171034);
+  color: var(--cosmic-gold);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s ease;
+}
+
+.fanCard:hover {
+  filter: brightness(1.15);
+}
+
+.fanCardSymbol {
+  color: var(--cosmic-gold);
+}
