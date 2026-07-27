@@ -8,7 +8,7 @@ const MIN_NUMBER = 1;
 const MAX_NUMBER = 45;
 
 export function cardSeedNumber(card: TarotCard): number {
-  return card.number === 0 ? 22 : card.number;
+  return (card.number % 45) + 1;
 }
 
 function isInDirectionRange(n: number, direction: CardDirection, seed: number): boolean {

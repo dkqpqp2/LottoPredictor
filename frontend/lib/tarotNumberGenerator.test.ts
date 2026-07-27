@@ -13,20 +13,33 @@ const fool = TAROT_CARDS.find((c) => c.nameEn === "The Fool")!; // number 0
 const aries = ZODIAC_SIGNS.find((z) => z.id === "aries")!; // luckyNumbers [9, 18, 27]
 
 describe("cardSeedNumber", () => {
-  it("substitutes 22 for The Fool's card number 0", () => {
-    expect(cardSeedNumber(fool)).toBe(22);
+  it("maps card number 0 to seed 1", () => {
+    expect(cardSeedNumber(fool)).toBe(1);
   });
 
-  it("uses the card's own tarot number otherwise", () => {
-    expect(cardSeedNumber(star)).toBe(17);
+  it("maps a mid-range major arcana card number to number + 1", () => {
+    expect(cardSeedNumber(star)).toBe(18);
+  });
+
+  it("maps major arcana card number 21 to seed 22", () => {
+    const world = { ...star, number: 21 };
+    expect(cardSeedNumber(world)).toBe(22);
+  });
+
+  it("wraps minor arcana card numbers back into the 1-45 range via modulo", () => {
+    const aceOfWands = { ...star, number: 22 };
+    expect(cardSeedNumber(aceOfWands)).toBe(23);
+
+    const kingOfPentacles = { ...star, number: 77 };
+    expect(cardSeedNumber(kingOfPentacles)).toBe(33);
   });
 });
 
 describe("buildWeights", () => {
   it("boosts the card's seed number and its +22 pair", () => {
     const weights = buildWeights(star, aries, "down");
-    expect(weights[17]).toBeGreaterThanOrEqual(1 + 8);
-    expect(weights[39]).toBeGreaterThanOrEqual(1 + 8);
+    expect(weights[18]).toBeGreaterThanOrEqual(1 + 8);
+    expect(weights[40]).toBeGreaterThanOrEqual(1 + 8);
   });
 
   it("boosts the zodiac's lucky numbers", () => {
@@ -47,12 +60,12 @@ describe("buildWeights", () => {
   });
 
   it("boosts numbers near the card's seed for the 'left' direction", () => {
-    const weights = buildWeights(star, aries, "left"); // seed = 17
-    expect(weights[20]).toBeGreaterThan(weights[40]);
+    const weights = buildWeights(star, aries, "left"); // seed = 18
+    expect(weights[20]).toBeGreaterThan(weights[1]);
   });
 
   it("boosts numbers far from the card's seed for the 'right' direction", () => {
-    const weights = buildWeights(star, aries, "right"); // seed = 17
+    const weights = buildWeights(star, aries, "right"); // seed = 18
     expect(weights[40]).toBeGreaterThan(weights[20]);
   });
 
@@ -65,8 +78,8 @@ describe("buildWeights", () => {
 
   it("still boosts the card's seed number when no zodiac is given", () => {
     const weights = buildWeights(star, null, "down");
-    expect(weights[17]).toBeGreaterThanOrEqual(1 + 8);
-    expect(weights[39]).toBeGreaterThanOrEqual(1 + 8);
+    expect(weights[18]).toBeGreaterThanOrEqual(1 + 8);
+    expect(weights[40]).toBeGreaterThanOrEqual(1 + 8);
   });
 
   it("does not boost any number for the zodiac's lucky numbers when no zodiac is given", () => {
