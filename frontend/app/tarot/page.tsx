@@ -254,11 +254,15 @@ export default function Home() {
       setPendingDrawResult(null);
       setDrawAnimating(false);
       setDrawResult(sets);
+      autoSaveDrawResult(sets);
     }
   }
 
   function handleDrawComplete() {
     setDrawResult(pendingDrawResult);
+    if (pendingDrawResult) {
+      autoSaveDrawResult(pendingDrawResult);
+    }
     setPendingDrawResult(null);
     setDrawAnimating(false);
   }
@@ -282,6 +286,23 @@ export default function Home() {
     } finally {
       setSavingIndex(null);
     }
+  }
+
+  async function autoSaveDrawResult(sets: number[][]) {
+    if (!auth) return;
+    for (let i = 0; i < sets.length; i++) {
+      setSavingIndex(i);
+      try {
+        await saveNumbers("TAROT", sets[i], auth.token);
+        setSavedIndices((prev) => new Set(prev).add(i));
+      } catch (err) {
+        setSaveErrors((prev) => ({
+          ...prev,
+          [i]: err instanceof Error ? err.message : "저장에 실패했습니다.",
+        }));
+      }
+    }
+    setSavingIndex(null);
   }
 
   function handleReset() {
@@ -702,9 +723,15 @@ export default function Home() {
                     type="button"
                     className={styles.saveButton}
                     onClick={() => handleSaveSet(i, set)}
-                    disabled={savedIndices.has(i) || savingIndex === i}
+                    disabled={savedIndices.has(i) || savingIndex === i || !saveErrors[i]}
                   >
-                    {savedIndices.has(i) ? "저장됨" : savingIndex === i ? "저장 중..." : "저장"}
+                    {savedIndices.has(i)
+                      ? "저장됨"
+                      : savingIndex === i
+                        ? "저장 중..."
+                        : saveErrors[i]
+                          ? "다시 저장"
+                          : "저장 중..."}
                   </button>
                   {saveErrors[i] && <p className={styles.saveError}>{saveErrors[i]}</p>}
                 </div>
