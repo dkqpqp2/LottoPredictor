@@ -962,3 +962,10 @@ export function shuffleCards(cards: TarotCard[]): TarotCard[] {
   }
   return result;
 }
+
+export const FAN_SIZE = 20;
+
+export function buildFanDeck(pool: TarotCard[], exclude: Set<number>, count: number = FAN_SIZE): TarotCard[] {
+  const remaining = pool.filter((c) => !exclude.has(c.number));
+  return shuffleCards(remaining).slice(0, count);
+}

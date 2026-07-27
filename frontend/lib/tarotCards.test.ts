@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { TAROT_CARDS, shuffleCards } from "./tarotCards";
+import { TAROT_CARDS, shuffleCards, buildFanDeck, FAN_SIZE } from "./tarotCards";
 
 describe("TAROT_CARDS", () => {
   it("has exactly 78 cards numbered 0-77 with no duplicates", () => {
@@ -45,6 +45,36 @@ describe("shuffleCards", () => {
   it("does not mutate the input array", () => {
     const original = [...TAROT_CARDS];
     shuffleCards(TAROT_CARDS);
+    expect(TAROT_CARDS).toEqual(original);
+  });
+});
+
+describe("buildFanDeck", () => {
+  it("returns FAN_SIZE cards when the pool is large enough", () => {
+    const deck = buildFanDeck(TAROT_CARDS, new Set());
+    expect(deck).toHaveLength(FAN_SIZE);
+  });
+
+  it("excludes card numbers passed in the exclude set", () => {
+    const excluded = new Set([0, 1, 2]);
+    const deck = buildFanDeck(TAROT_CARDS, excluded, 75);
+    expect(deck.some((c) => excluded.has(c.number))).toBe(false);
+  });
+
+  it("returns fewer cards than count when the pool after exclusion is smaller", () => {
+    const excluded = new Set(TAROT_CARDS.slice(3).map((c) => c.number));
+    const deck = buildFanDeck(TAROT_CARDS, excluded, FAN_SIZE);
+    expect(deck).toHaveLength(3);
+  });
+
+  it("respects a custom count", () => {
+    const deck = buildFanDeck(TAROT_CARDS, new Set(), 5);
+    expect(deck).toHaveLength(5);
+  });
+
+  it("does not mutate the input pool", () => {
+    const original = [...TAROT_CARDS];
+    buildFanDeck(TAROT_CARDS, new Set());
     expect(TAROT_CARDS).toEqual(original);
   });
 });
