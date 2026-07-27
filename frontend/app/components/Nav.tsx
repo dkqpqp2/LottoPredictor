@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./Nav.module.css";
@@ -17,6 +18,11 @@ const LINKS = [
 export default function Nav() {
   const pathname = usePathname();
   const { auth, logout } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   return (
     <nav className={styles.nav}>
@@ -24,41 +30,48 @@ export default function Nav() {
         <span className={styles.brandDot} />
         로타로
       </Link>
-      {LINKS.map((link) => (
-        <Link
-          key={link.href}
-          href={link.href}
-          className={`${styles.link} ${pathname === link.href ? styles.linkActive : ""}`}
-        >
-          {link.label}
-        </Link>
-      ))}
-      {auth?.isAdmin && (
-        <Link
-          href="/admin"
-          className={`${styles.link} ${pathname === "/admin" ? styles.linkActive : ""}`}
-        >
-          관리자 페이지
-        </Link>
-      )}
-      {auth ? (
-        <div className={styles.authSection}>
+
+      <button
+        type="button"
+        className={styles.menuToggle}
+        onClick={() => setMenuOpen((v) => !v)}
+        aria-label={menuOpen ? "메뉴 닫기" : "메뉴 열기"}
+        aria-expanded={menuOpen}
+      >
+        <span className={styles.menuIcon} />
+      </button>
+
+      <div className={`${styles.links} ${menuOpen ? styles.linksOpen : ""}`}>
+        {LINKS.map((link) => (
           <Link
-            href="/mypage"
-            className={`${styles.link} ${pathname === "/mypage" ? styles.linkActive : ""}`}
+            key={link.href}
+            href={link.href}
+            className={`${styles.link} ${pathname === link.href ? styles.linkActive : ""}`}
           >
-            마이페이지
+            {link.label}
           </Link>
-          <span className={styles.authNickname}>{auth.nickname}님</span>
-          <button type="button" className={styles.logoutButton} onClick={logout}>
-            로그아웃
-          </button>
-        </div>
-      ) : (
-        <a href={getKakaoAuthorizeUrl()} className={styles.loginLink}>
-          로그인
-        </a>
-      )}
+        ))}
+        {auth?.isAdmin && (
+          <Link href="/admin" className={`${styles.link} ${pathname === "/admin" ? styles.linkActive : ""}`}>
+            관리자 페이지
+          </Link>
+        )}
+        {auth ? (
+          <div className={styles.authSection}>
+            <Link href="/mypage" className={`${styles.link} ${pathname === "/mypage" ? styles.linkActive : ""}`}>
+              마이페이지
+            </Link>
+            <span className={styles.authNickname}>{auth.nickname}님</span>
+            <button type="button" className={styles.logoutButton} onClick={logout}>
+              로그아웃
+            </button>
+          </div>
+        ) : (
+          <a href={getKakaoAuthorizeUrl()} className={styles.loginLink}>
+            로그인
+          </a>
+        )}
+      </div>
     </nav>
   );
 }

@@ -10,6 +10,49 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--surface-border);
+  position: relative;
+}
+
+.menuToggle {
+  display: none;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.menuIcon,
+.menuIcon::before,
+.menuIcon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 1.3rem;
+  height: 2px;
+  background: var(--foreground);
+  transform: translateX(-50%);
+}
+
+.menuIcon {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.menuIcon::before {
+  top: -0.4rem;
+}
+
+.menuIcon::after {
+  top: 0.4rem;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .brand {
@@ -95,4 +138,49 @@
 
 .loginLink:hover {
   background: var(--accent-hover);
+}
+
+@media (max-width: 640px) {
+  .menuToggle {
+    display: block;
+  }
+
+  .links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.15rem;
+    padding: 0.75rem 1rem 1rem;
+    background: var(--background);
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .linksOpen {
+    display: flex;
+  }
+
+  .link {
+    text-align: center;
+  }
+
+  .authSection {
+    flex-direction: column;
+    align-items: stretch;
+    margin-left: 0;
+    gap: 0.3rem;
+  }
+
+  .authNickname {
+    text-align: center;
+    padding: 0.3rem 0;
+  }
+
+  .loginLink {
+    margin-left: 0;
+    text-align: center;
+  }
 }
