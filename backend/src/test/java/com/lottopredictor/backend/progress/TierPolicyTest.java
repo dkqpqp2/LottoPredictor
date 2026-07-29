@@ -107,4 +107,12 @@ class TierPolicyTest {
         assertThat(TierPolicy.tierFloor(Tier.EXPERT)).isEqualTo(150);
         assertThat(TierPolicy.tierFloor(Tier.LOTTO_GOD)).isEqualTo(150);
     }
+
+    @Test
+    void pensionIsCappedAtOnePerDayForEveryTierIncludingLottoGod() {
+        assertThat(TierPolicy.dailyLimit(Tier.BEGINNER, Feature.PENSION)).isEqualTo(1);
+        assertThat(TierPolicy.dailyLimit(Tier.APPRENTICE, Feature.PENSION)).isEqualTo(1);
+        assertThat(TierPolicy.dailyLimit(Tier.EXPERT, Feature.PENSION)).isEqualTo(1);
+        assertThat(TierPolicy.dailyLimit(Tier.LOTTO_GOD, Feature.PENSION)).isEqualTo(1);
+    }
 }

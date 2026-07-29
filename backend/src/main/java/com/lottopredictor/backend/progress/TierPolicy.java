@@ -38,6 +38,9 @@ public final class TierPolicy {
     }
 
     public static int dailyLimit(Tier tier, Feature feature) {
+        if (feature == Feature.PENSION) {
+            return 1;
+        }
         DailyLimits limits = DAILY_LIMITS.get(tier);
         return feature == Feature.TAROT ? limits.tarot() : limits.generate();
     }
