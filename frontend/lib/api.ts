@@ -113,6 +113,24 @@ export async function triggerPensionCrawl(token: string): Promise<SyncResult> {
   return res.json();
 }
 
+export interface PensionGenerateResult {
+  groupNo: number;
+  number: string;
+}
+
+export async function generatePension(token: string): Promise<PensionGenerateResult> {
+  const res = await fetch(`${API_BASE_URL}/api/pension/generate`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 429) {
+    throw new Error("오늘 이미 사용하셨어요. 내일 다시 도전해주세요.");
+  }
+  if (!res.ok) {
+    throw new Error("번호 생성에 실패했습니다.");
+  }
+  return res.json();
+}
+
 export interface WeeklyPickResult {
   weekStart: string;
   targetDrawNo: number;
