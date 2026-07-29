@@ -71,4 +71,19 @@ class PensionCrawlerServiceTest {
 
         assertThat(result.synced()).containsExactlyInAnyOrder(1, 2);
     }
+
+    @Test
+    void processesDrawsInAscendingOrderRegardlessOfApiResponseOrder() {
+        when(repository.findMaxDrawNo()).thenReturn(Optional.of(0));
+        when(client.fetchAll()).thenReturn(List.of(
+                new PensionDrawData(3, LocalDate.of(2026, 7, 23), 3, "011391", "438906"),
+                new PensionDrawData(1, LocalDate.of(2026, 7, 9), 4, "604270", "945893"),
+                new PensionDrawData(2, LocalDate.of(2026, 7, 16), 2, "485216", "061918")
+        ));
+
+        PensionCrawlerService service = new PensionCrawlerService(repository, client);
+        SyncResult result = service.syncLatestDraws();
+
+        assertThat(result.synced()).containsExactly(1, 2, 3);
+    }
 }

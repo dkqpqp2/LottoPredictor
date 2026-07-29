@@ -5,6 +5,7 @@ import com.lottopredictor.backend.pensiondraw.PensionDrawRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -22,7 +23,10 @@ public class PensionCrawlerService {
         int currentMax = repository.findMaxDrawNo().orElse(0);
         List<Integer> synced = new ArrayList<>();
 
-        for (PensionDrawData data : client.fetchAll()) {
+        List<PensionDrawData> ascending = new ArrayList<>(client.fetchAll());
+        ascending.sort(Comparator.comparingInt(PensionDrawData::drawNo));
+
+        for (PensionDrawData data : ascending) {
             if (data.drawNo() > currentMax) {
                 repository.save(new PensionDraw(
                         data.drawNo(),

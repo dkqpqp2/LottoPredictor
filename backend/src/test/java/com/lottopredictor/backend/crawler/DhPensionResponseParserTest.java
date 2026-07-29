@@ -65,4 +65,17 @@ class DhPensionResponseParserTest {
 
         assertThat(DhPensionResponseParser.parse(response)).isEmpty();
     }
+
+    @Test
+    void skipsEntriesWithAMalformedField() {
+        DhPensionResponse response = new DhPensionResponse(new DhPensionResponse.DhPensionData(List.of(
+                new DhPensionEntry(325, "not-a-date", "3", "011391", "438906"),
+                new DhPensionEntry(324, "20260716", "2", "485216", "061918")
+        )));
+
+        List<PensionDrawData> draws = DhPensionResponseParser.parse(response);
+
+        assertThat(draws).hasSize(1);
+        assertThat(draws.get(0).drawNo()).isEqualTo(324);
+    }
 }

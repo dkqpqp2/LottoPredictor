@@ -34,12 +34,16 @@ public final class DhPensionResponseParser {
             return null;
         }
 
-        return new PensionDrawData(
-                entry.psltEpsd(),
-                LocalDate.parse(entry.psltRflYmd(), DateTimeFormatter.BASIC_ISO_DATE),
-                Integer.parseInt(entry.wnBndNo()),
-                entry.wnRnkVl(),
-                entry.bnsRnkVl()
-        );
+        try {
+            return new PensionDrawData(
+                    entry.psltEpsd(),
+                    LocalDate.parse(entry.psltRflYmd(), DateTimeFormatter.BASIC_ISO_DATE),
+                    Integer.parseInt(entry.wnBndNo()),
+                    entry.wnRnkVl(),
+                    entry.bnsRnkVl()
+            );
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 }
