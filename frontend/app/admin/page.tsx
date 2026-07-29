@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
-import { triggerCrawl, type SyncResult } from "../../lib/api";
+import { triggerCrawl, triggerPensionCrawl, type SyncResult } from "../../lib/api";
 import { getAdminUsers, setUserTier, resetUserUsage, type AdminUser } from "../../lib/admin";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
@@ -22,6 +22,10 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SyncResult | null>(null);
+
+  const [pensionLoading, setPensionLoading] = useState(false);
+  const [pensionError, setPensionError] = useState<string | null>(null);
+  const [pensionResult, setPensionResult] = useState<SyncResult | null>(null);
 
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [usersError, setUsersError] = useState<string | null>(null);
@@ -51,6 +55,21 @@ export default function AdminPage() {
       setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleCollectPension() {
+    if (!auth) return;
+    setPensionLoading(true);
+    setPensionError(null);
+    setPensionResult(null);
+    try {
+      const data = await triggerPensionCrawl(auth.token);
+      setPensionResult(data);
+    } catch (err) {
+      setPensionError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
+    } finally {
+      setPensionLoading(false);
     }
   }
 
@@ -148,6 +167,42 @@ export default function AdminPage() {
                 {result.skipped.map((s) => (
                   <span key={s.drawNo} className={styles.skippedItem}>
                     {s.drawNo}회: {s.reason}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>연금복권 회차 수집</h2>
+        <p className={styles.subtitle}>
+          실행하면 DB에 없는 연금복권720+ 회차를 전부 새로 가져옵니다. 이미 최신 상태면 아무 일도 일어나지 않습니다.
+        </p>
+
+        <button
+          type="button"
+          className={styles.collectButton}
+          onClick={handleCollectPension}
+          disabled={pensionLoading}
+        >
+          {pensionLoading ? "수집 중..." : "수집하기"}
+        </button>
+
+        {pensionError && <p className={styles.error}>{pensionError}</p>}
+
+        {pensionResult && (
+          <div className={styles.resultBox}>
+            <div className={styles.resultStat}>
+              <span className={styles.resultCount}>{pensionResult.synced.length}</span>
+              <span className={styles.resultLabel}>개 회차 수집됨</span>
+            </div>
+            {pensionResult.synced.length > 0 && (
+              <div className={styles.syncedList}>
+                {pensionResult.synced.map((n) => (
+                  <span key={n} className={styles.syncedBadge}>
+                    {n}
                   </span>
                 ))}
               </div>

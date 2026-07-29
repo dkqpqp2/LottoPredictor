@@ -99,6 +99,20 @@ export async function triggerCrawl(token: string): Promise<SyncResult> {
   return res.json();
 }
 
+export async function triggerPensionCrawl(token: string): Promise<SyncResult> {
+  const res = await fetch(`${API_BASE_URL}/api/crawl/pension`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 403) {
+    throw new Error("관리자 계정만 이용할 수 있어요.");
+  }
+  if (!res.ok) {
+    throw new Error("크롤링 요청에 실패했습니다.");
+  }
+  return res.json();
+}
+
 export interface WeeklyPickResult {
   weekStart: string;
   targetDrawNo: number;
