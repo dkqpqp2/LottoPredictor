@@ -138,6 +138,8 @@ class UsageServiceTest {
                 .thenReturn(Optional.of(new DailyUsage(1L, LocalDate.now(), Feature.TAROT, 1)));
         when(dailyUsageRepository.findByUserIdAndUsageDateAndFeature(eq(1L), any(LocalDate.class), eq(Feature.GENERATE)))
                 .thenReturn(Optional.empty());
+        when(dailyUsageRepository.findByUserIdAndUsageDateAndFeature(eq(1L), any(LocalDate.class), eq(Feature.PENSION)))
+                .thenReturn(Optional.empty());
 
         UsageService service = new UsageService(userRepository, dailyUsageRepository);
         ProgressResponse progress = service.getProgress(1L);
@@ -147,6 +149,7 @@ class UsageServiceTest {
         assertThat(progress.pointsToNextTier()).isEqualTo(100);
         assertThat(progress.tarotUsage()).isEqualTo(new ProgressResponse.UsageInfo(1, 1));
         assertThat(progress.generateUsage()).isEqualTo(new ProgressResponse.UsageInfo(0, 3));
+        assertThat(progress.pensionUsage()).isEqualTo(new ProgressResponse.UsageInfo(0, 1));
         assertThat(progress.maxSets()).isEqualTo(3);
         assertThat(progress.adjustableSets()).isFalse();
         assertThat(progress.tierFloor()).isEqualTo(50);

@@ -6,6 +6,7 @@ public record ProgressResponse(
         Integer pointsToNextTier,
         UsageInfo tarotUsage,
         UsageInfo generateUsage,
+        UsageInfo pensionUsage,
         int maxSets,
         boolean adjustableSets,
         int tierFloor

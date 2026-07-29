@@ -70,12 +70,14 @@ public class UsageService {
         LocalDate today = LocalDate.now(KST);
         int tarotUsed = usageCountFor(userId, today, Feature.TAROT);
         int generateUsed = usageCountFor(userId, today, Feature.GENERATE);
+        int pensionUsed = usageCountFor(userId, today, Feature.PENSION);
         return new ProgressResponse(
                 tier.label(),
                 user.getTotalPoints(),
                 TierPolicy.pointsToNextTier(tier, user.getTotalPoints()),
                 new ProgressResponse.UsageInfo(tarotUsed, TierPolicy.dailyLimit(tier, Feature.TAROT)),
                 new ProgressResponse.UsageInfo(generateUsed, TierPolicy.dailyLimit(tier, Feature.GENERATE)),
+                new ProgressResponse.UsageInfo(pensionUsed, TierPolicy.dailyLimit(tier, Feature.PENSION)),
                 TierPolicy.maxSets(tier),
                 TierPolicy.hasAdjustableSets(tier),
                 TierPolicy.tierFloor(tier)
