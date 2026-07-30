@@ -159,3 +159,58 @@ export async function getWeeklyPickHistory(limit = 5): Promise<WeeklyPickResult[
   }
   return res.json();
 }
+
+export interface PensionDrawResult {
+  drawNo: number;
+  drawDate: string;
+  groupNo: number;
+  number: string;
+  bonusNumber: string;
+}
+
+export interface GetPensionDrawsParams {
+  page?: number;
+  size?: number;
+}
+
+export async function getPensionDraws(params: GetPensionDrawsParams): Promise<PensionDrawResult[]> {
+  const search = new URLSearchParams();
+  if (params.page != null) search.set("page", String(params.page));
+  if (params.size != null) search.set("size", String(params.size));
+
+  const res = await fetch(`${API_BASE_URL}/api/pension/draws?${search.toString()}`);
+  if (!res.ok) {
+    throw new Error("연금복권 회차 조회에 실패했습니다.");
+  }
+  return res.json();
+}
+
+export interface PensionWeeklyPickResult {
+  weekStart: string;
+  targetDrawNo: number;
+  groupNo: number;
+  number: string;
+  resultAvailable: boolean;
+  rank: string | null;
+  bonusMatch: boolean | null;
+  actualGroupNo: number | null;
+  actualNumber: string | null;
+  actualBonusNumber: string | null;
+  actualDrawDate: string | null;
+}
+
+export async function getPensionWeeklyPick(): Promise<PensionWeeklyPickResult> {
+  const res = await fetch(`${API_BASE_URL}/api/pension/weekly-pick`);
+  if (!res.ok) {
+    throw new Error("이번 주 연금복권 추천 번호를 불러오지 못했습니다.");
+  }
+  return res.json();
+}
+
+export async function getPensionWeeklyPickHistory(limit = 5): Promise<PensionWeeklyPickResult[]> {
+  const res = await fetch(`${API_BASE_URL}/api/pension/weekly-pick/history?limit=${limit}`);
+  if (!res.ok) {
+    throw new Error("연금복권 추천 이력을 불러오지 못했습니다.");
+  }
+  return res.json();
+}

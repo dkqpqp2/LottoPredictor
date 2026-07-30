@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { generateNumbers, generatePension } from "./api";
+import {
+  generateNumbers,
+  generatePension,
+  getPensionDraws,
+  getPensionWeeklyPick,
+  getPensionWeeklyPickHistory,
+} from "./api";
 
 describe("generateNumbers", () => {
   afterEach(() => {
@@ -76,5 +82,96 @@ describe("generatePension", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500 }));
 
     await expect(generatePension("jwt-abc")).rejects.toThrow("번호 생성에 실패했습니다.");
+  });
+});
+
+describe("getPensionDraws", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("returns the draw list on success", async () => {
+    const payload = [
+      { drawNo: 325, drawDate: "2026-07-23", groupNo: 3, number: "011391", bonusNumber: "438906" },
+    ];
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => payload }));
+
+    const result = await getPensionDraws({ page: 0, size: 1 });
+
+    expect(result).toEqual(payload);
+  });
+
+  it("throws when the backend responds with an error", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500 }));
+
+    await expect(getPensionDraws({ page: 0, size: 1 })).rejects.toThrow("연금복권 회차 조회에 실패했습니다.");
+  });
+});
+
+describe("getPensionWeeklyPick", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("returns the current pick on success", async () => {
+    const payload = {
+      weekStart: "2026-07-27",
+      targetDrawNo: 326,
+      groupNo: 3,
+      number: "011391",
+      resultAvailable: false,
+      rank: null,
+      bonusMatch: null,
+      actualGroupNo: null,
+      actualNumber: null,
+      actualBonusNumber: null,
+      actualDrawDate: null,
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => payload }));
+
+    const result = await getPensionWeeklyPick();
+
+    expect(result).toEqual(payload);
+  });
+
+  it("throws when the backend responds with an error", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500 }));
+
+    await expect(getPensionWeeklyPick()).rejects.toThrow("이번 주 연금복권 추천 번호를 불러오지 못했습니다.");
+  });
+});
+
+describe("getPensionWeeklyPickHistory", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("returns the history list on success", async () => {
+    const payload = [
+      {
+        weekStart: "2026-07-13",
+        targetDrawNo: 325,
+        groupNo: 3,
+        number: "011391",
+        resultAvailable: true,
+        rank: "1등",
+        bonusMatch: false,
+        actualGroupNo: 3,
+        actualNumber: "011391",
+        actualBonusNumber: "438906",
+        actualDrawDate: "2026-07-23",
+      },
+    ];
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => payload }));
+
+    const result = await getPensionWeeklyPickHistory(5);
+
+    expect(result).toEqual(payload);
+  });
+
+  it("throws when the backend responds with an error", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500 }));
+
+    await expect(getPensionWeeklyPickHistory(5)).rejects.toThrow("연금복권 추천 이력을 불러오지 못했습니다.");
   });
 });
