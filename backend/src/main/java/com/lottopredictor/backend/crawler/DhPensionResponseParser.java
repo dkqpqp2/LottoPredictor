@@ -30,7 +30,9 @@ public final class DhPensionResponseParser {
                 || entry.psltRflYmd() == null
                 || entry.wnBndNo() == null
                 || entry.wnRnkVl() == null
-                || entry.bnsRnkVl() == null) {
+                || entry.bnsRnkVl() == null
+                || entry.wnRnkVl().length() != 6
+                || entry.bnsRnkVl().length() != 6) {
             return null;
         }
 

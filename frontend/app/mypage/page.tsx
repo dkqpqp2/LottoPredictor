@@ -149,7 +149,7 @@ export default function MyPage() {
     <div className={styles.page}>
       <section className={styles.hero}>
         <h1 className={styles.title}>마이페이지</h1>
-        <p className={styles.subtitle}>월별로 넘겨보면서 저장한 번호와 타로 해석을 확인해보세요.</p>
+        <p className={styles.subtitle}>월별로 넘겨보면서 저장한 번호, 연금복권 번호와 타로 해석을 확인해보세요.</p>
       </section>
 
       {progress && (
@@ -343,9 +343,11 @@ export default function MyPage() {
                     <span className={styles.itemMeta}>
                       {item.targetDrawNo}회 대상 · {new Date(item.savedAt).toLocaleDateString("ko-KR")}
                       {item.resultAvailable &&
-                        ` · 당첨 ${item.actualGroupNo}조 ${item.actualNumber} · ${
-                          item.rank ? item.rank : "낙첨"
-                        }${item.bonusMatch ? " · 보너스 당첨" : ""}`}
+                        ` · 당첨 ${item.actualGroupNo}조 ${item.actualNumber}${
+                          item.bonusMatch ? ` (보너스 ${item.actualBonusNumber})` : ""
+                        } · ${item.rank ? item.rank : "낙첨"}${
+                          item.bonusMatch ? " · 보너스 당첨" : ""
+                        }`}
                     </span>
                   </div>
                 ))}

@@ -81,6 +81,7 @@ class PensionMatchCalculatorTest {
         PensionMatchCalculator.MatchResult result = PensionMatchCalculator.calculate(3, "123457", draw);
 
         assertThat(result.rank()).isNull();
+        assertThat(result.bonusMatch()).isFalse();
     }
 
     @Test
@@ -91,5 +92,24 @@ class PensionMatchCalculatorTest {
 
         assertThat(result.rank()).isEqualTo("5등");
         assertThat(result.bonusMatch()).isTrue();
+    }
+
+    @Test
+    void reportsBonusMatchWithNoMainRank() {
+        PensionDraw draw = new PensionDraw(325, DRAW_DATE, 3, "123450", "999999");
+
+        PensionMatchCalculator.MatchResult result = PensionMatchCalculator.calculate(1, "999999", draw);
+
+        assertThat(result.rank()).isNull();
+        assertThat(result.bonusMatch()).isTrue();
+    }
+
+    @Test
+    void comparesNumbersAsStringsNotIntegersForLeadingZero() {
+        PensionDraw draw = new PensionDraw(325, DRAW_DATE, 3, "011391", "654321");
+
+        PensionMatchCalculator.MatchResult result = PensionMatchCalculator.calculate(3, "911391", draw);
+
+        assertThat(result.rank()).isEqualTo("3등");
     }
 }
