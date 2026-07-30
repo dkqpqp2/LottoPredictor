@@ -596,9 +596,11 @@ export default function Home() {
 
           {interpretation && <p className={styles.interpretationText}>{interpretation}</p>}
 
-          <button type="button" className={styles.resetButton} onClick={handleReset} disabled={interpreting}>
-            다시 뽑기
-          </button>
+          {!interpretation && (
+            <button type="button" className={styles.resetButton} onClick={handleReset} disabled={interpreting}>
+              다시 뽑기
+            </button>
+          )}
         </div>
       )}
 
@@ -637,9 +639,11 @@ export default function Home() {
 
           {interpretation && <p className={styles.interpretationText}>{interpretation}</p>}
 
-          <button type="button" className={styles.resetButton} onClick={handleReset} disabled={interpreting}>
-            다시 뽑기
-          </button>
+          {!interpretation && (
+            <button type="button" className={styles.resetButton} onClick={handleReset} disabled={interpreting}>
+              다시 뽑기
+            </button>
+          )}
         </div>
       )}
 
