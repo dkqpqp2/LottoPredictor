@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { getSavedNumbers, type SavedNumberResult } from "../../lib/savedNumbers";
+import { getPensionSavedNumbers, type PensionSavedNumberResult } from "../../lib/pensionSavedNumbers";
 import { getBallColor } from "../../lib/lottoBall";
 import { getTarotInterpretationHistory, type TarotInterpretationResult } from "../../lib/tarotInterpretation";
 import { useAuth } from "../contexts/AuthContext";
@@ -29,12 +30,15 @@ export default function MyPage() {
   const { progress } = useProgress();
   const [savedNumbers, setSavedNumbers] = useState<SavedNumberResult[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [pensionSavedNumbers, setPensionSavedNumbers] = useState<PensionSavedNumberResult[]>([]);
+  const [pensionError, setPensionError] = useState<string | null>(null);
   const [interpretations, setInterpretations] = useState<TarotInterpretationResult[]>([]);
   const [interpretationsError, setInterpretationsError] = useState<string | null>(null);
   const [viewYear, setViewYear] = useState(() => new Date().getFullYear());
   const [viewMonth, setViewMonth] = useState(() => new Date().getMonth() + 1);
   const [numberPage, setNumberPage] = useState(0);
   const [interpretationPage, setInterpretationPage] = useState(0);
+  const [pensionPage, setPensionPage] = useState(0);
 
   useEffect(() => {
     if (!auth) return;
@@ -44,11 +48,15 @@ export default function MyPage() {
     getTarotInterpretationHistory(auth.token)
       .then(setInterpretations)
       .catch(() => setInterpretationsError("타로 해석 기록을 불러오지 못했습니다."));
+    getPensionSavedNumbers(auth.token)
+      .then(setPensionSavedNumbers)
+      .catch(() => setPensionError("저장된 연금복권 번호를 불러오지 못했습니다."));
   }, [auth]);
 
   function handlePrevMonth() {
     setNumberPage(0);
     setInterpretationPage(0);
+    setPensionPage(0);
     setViewMonth((m) => {
       if (m === 1) {
         setViewYear((y) => y - 1);
@@ -61,6 +69,7 @@ export default function MyPage() {
   function handleNextMonth() {
     setNumberPage(0);
     setInterpretationPage(0);
+    setPensionPage(0);
     setViewMonth((m) => {
       if (m === 12) {
         setViewYear((y) => y + 1);
@@ -118,6 +127,24 @@ export default function MyPage() {
     setInterpretationPage((p) => Math.min(monthInterpretations.length - 1, p + 1));
   }
 
+  const monthPensionItems = pensionSavedNumbers.filter((item) => {
+    const d = new Date(item.savedAt);
+    return d.getFullYear() === viewYear && d.getMonth() + 1 === viewMonth;
+  });
+  const totalPensionPages = Math.max(1, Math.ceil(monthPensionItems.length / NUMBERS_PER_PAGE));
+  const pagedPensionItems = monthPensionItems.slice(
+    pensionPage * NUMBERS_PER_PAGE,
+    pensionPage * NUMBERS_PER_PAGE + NUMBERS_PER_PAGE
+  );
+
+  function handlePrevPensionPage() {
+    setPensionPage((p) => Math.max(0, p - 1));
+  }
+
+  function handleNextPensionPage() {
+    setPensionPage((p) => Math.min(totalPensionPages - 1, p + 1));
+  }
+
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
@@ -153,7 +180,7 @@ export default function MyPage() {
 
       {interpretationsError && <p className={styles.error}>{interpretationsError}</p>}
 
-      {(savedNumbers.length > 0 || interpretations.length > 0) && (
+      {(savedNumbers.length > 0 || interpretations.length > 0 || pensionSavedNumbers.length > 0) && (
         <div className={styles.monthNav}>
           <button type="button" className={styles.monthNavArrow} onClick={handlePrevMonth} aria-label="이전 달">
             ‹
@@ -283,6 +310,66 @@ export default function MyPage() {
                     className={styles.monthNavArrow}
                     onClick={handleNextNumberPage}
                     disabled={numberPage >= totalNumberPages - 1}
+                    aria-label="다음 페이지"
+                  >
+                    ›
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {pensionError && <p className={styles.error}>{pensionError}</p>}
+
+      {!pensionError && pensionSavedNumbers.length === 0 && (
+        <p className={styles.empty}>아직 뽑은 연금복권 번호가 없어요.</p>
+      )}
+
+      {!pensionError && pensionSavedNumbers.length > 0 && (
+        <div className={styles.monthGroup}>
+          <h2 className={styles.monthLabel}>연금복권 뽑은 번호</h2>
+          {pagedPensionItems.length === 0 ? (
+            <p className={styles.empty}>이 달에는 뽑은 연금복권 번호가 없어요.</p>
+          ) : (
+            <>
+              <div className={styles.itemList}>
+                {pagedPensionItems.map((item) => (
+                  <div key={item.id} className={styles.item}>
+                    <span className={styles.pensionNumber}>
+                      {item.groupNo}조 {item.number}
+                    </span>
+                    <span className={styles.itemMeta}>
+                      {item.targetDrawNo}회 대상 · {new Date(item.savedAt).toLocaleDateString("ko-KR")}
+                      {item.resultAvailable &&
+                        ` · 당첨 ${item.actualGroupNo}조 ${item.actualNumber} · ${
+                          item.rank ? item.rank : "낙첨"
+                        }${item.bonusMatch ? " · 보너스 당첨" : ""}`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {totalPensionPages > 1 && (
+                <div className={styles.pager}>
+                  <button
+                    type="button"
+                    className={styles.monthNavArrow}
+                    onClick={handlePrevPensionPage}
+                    disabled={pensionPage === 0}
+                    aria-label="이전 페이지"
+                  >
+                    ‹
+                  </button>
+                  <span className={styles.pagerCount}>
+                    {pensionPage + 1} / {totalPensionPages}
+                  </span>
+                  <button
+                    type="button"
+                    className={styles.monthNavArrow}
+                    onClick={handleNextPensionPage}
+                    disabled={pensionPage >= totalPensionPages - 1}
                     aria-label="다음 페이지"
                   >
                     ›
