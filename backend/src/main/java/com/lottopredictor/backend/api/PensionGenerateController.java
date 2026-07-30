@@ -4,6 +4,7 @@ import com.lottopredictor.backend.auth.AuthPrincipal;
 import com.lottopredictor.backend.auth.AuthenticatedUser;
 import com.lottopredictor.backend.pensiongenerate.PensionGenerateResult;
 import com.lottopredictor.backend.pensiongenerate.PensionNumberGenerationService;
+import com.lottopredictor.backend.pensionsavednumber.PensionSavedNumberService;
 import com.lottopredictor.backend.progress.Feature;
 import com.lottopredictor.backend.progress.UsageService;
 import org.springframework.http.HttpStatus;
@@ -16,10 +17,16 @@ public class PensionGenerateController {
 
     private final PensionNumberGenerationService service;
     private final UsageService usageService;
+    private final PensionSavedNumberService pensionSavedNumberService;
 
-    public PensionGenerateController(PensionNumberGenerationService service, UsageService usageService) {
+    public PensionGenerateController(
+            PensionNumberGenerationService service,
+            UsageService usageService,
+            PensionSavedNumberService pensionSavedNumberService
+    ) {
         this.service = service;
         this.usageService = usageService;
+        this.pensionSavedNumberService = pensionSavedNumberService;
     }
 
     @GetMapping("/api/pension/generate")
@@ -27,6 +34,8 @@ public class PensionGenerateController {
         if (!usageService.consume(principal.userId(), Feature.PENSION)) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }
-        return ResponseEntity.ok(service.generate());
+        PensionGenerateResult result = service.generate();
+        pensionSavedNumberService.save(principal.userId(), result.groupNo(), result.number());
+        return ResponseEntity.ok(result);
     }
 }
