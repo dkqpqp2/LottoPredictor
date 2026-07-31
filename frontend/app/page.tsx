@@ -13,6 +13,11 @@ const FEATURES = [
     description: "역대 당첨번호 출현 빈도를 반영한 가중치 방식으로 번호를 뽑아드려요.",
   },
   {
+    href: "/pension",
+    title: "연금복권720+",
+    description: "조 1~5와 6자리 번호를 완전 무작위로 뽑고, 당첨 결과까지 확인해보세요.",
+  },
+  {
     href: "/stats",
     title: "통계 & 회차조회",
     description: "번호별 출현 통계와 역대 당첨번호를 한눈에 확인하세요.",
