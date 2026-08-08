@@ -13,9 +13,9 @@
   aspect-ratio: 2 / 3;
   margin-left: -1.6rem;
   border-radius: 8px;
-  border: 1px solid var(--cosmic-gold-soft);
-  background: linear-gradient(160deg, #2a1a5e, #171034);
-  color: var(--cosmic-gold);
+  border: 1px solid var(--cosmic-accent-soft);
+  background: linear-gradient(160deg, #1c2d55, #0f1b3d);
+  color: var(--cosmic-accent);
   font-size: 1rem;
   cursor: pointer;
   display: flex;
@@ -31,5 +31,5 @@
 }
 
 .fanCardSymbol {
-  color: var(--cosmic-gold);
+  color: var(--cosmic-accent);
 }
