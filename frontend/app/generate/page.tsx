@@ -5,14 +5,17 @@ import styles from "./generate.module.css";
 import {
   generateNumbers,
   getDraws,
+  getStats,
   getWeeklyPick,
   getWeeklyPickHistory,
   type DrawResponse,
   type GenerateMode,
   type GenerateResult,
+  type NumberStat,
   type WeeklyPickResult,
 } from "../../lib/api";
 import { getBallColor } from "../../lib/lottoBall";
+import { groupByRange } from "../../lib/numberRangeGroups";
 import LottoDrawAnimation from "../components/LottoDrawAnimation";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
@@ -33,6 +36,7 @@ export default function GeneratePage() {
   const [latestDraw, setLatestDraw] = useState<DrawResponse | null>(null);
   const [weeklyPick, setWeeklyPick] = useState<WeeklyPickResult | null>(null);
   const [weeklyHistory, setWeeklyHistory] = useState<WeeklyPickResult[]>([]);
+  const [stats, setStats] = useState<NumberStat[] | null>(null);
   const [savedIndices, setSavedIndices] = useState<Set<number>>(new Set());
   const [savingIndex, setSavingIndex] = useState<number | null>(null);
   const [saveErrors, setSaveErrors] = useState<Record<number, string>>({});
@@ -55,6 +59,9 @@ export default function GeneratePage() {
     getWeeklyPickHistory(5)
       .then(setWeeklyHistory)
       .catch(() => setWeeklyHistory([]));
+    getStats()
+      .then(setStats)
+      .catch(() => setStats(null));
   }, []);
 
   async function handleGenerate() {
@@ -108,6 +115,17 @@ export default function GeneratePage() {
       setSavingIndex(null);
     }
   }
+
+  const topStats = stats ? [...stats].sort((a, b) => b.count - a.count).slice(0, 8) : [];
+  const maxTopCount = topStats.length > 0 ? Math.max(...topStats.map((s) => s.count)) : 1;
+
+  const rangeTotals = stats
+    ? groupByRange(stats).map((g) => ({
+        label: g.label,
+        total: g.items.reduce((sum, s) => sum + s.count, 0),
+      }))
+    : [];
+  const maxRangeTotal = rangeTotals.length > 0 ? Math.max(...rangeTotals.map((r) => r.total)) : 1;
 
   return (
     <div className={styles.page}>
@@ -172,6 +190,50 @@ export default function GeneratePage() {
           ) : (
             <p className={styles.weeklyPending}>{weeklyPick.targetDrawNo}회 추첨 결과를 기다리는 중입니다.</p>
           )}
+        </div>
+      )}
+
+      {stats && weeklyPick && (
+        <div className={styles.analysisCard}>
+          <span className={styles.weeklyTitle}>{weeklyPick.targetDrawNo}회 번호 분석</span>
+
+          <div className={styles.analysisGroup}>
+            <span className={styles.analysisGroupTitle}>출현 빈도 상위 8개</span>
+            <div className={styles.analysisList}>
+              {topStats.map((s) => (
+                <div key={s.number} className={styles.analysisRow}>
+                  <span className={styles.analysisBadge} style={{ backgroundColor: getBallColor(s.number) }}>
+                    {s.number}
+                  </span>
+                  <span className={styles.analysisBarTrack}>
+                    <span
+                      className={styles.analysisBarFill}
+                      style={{ width: `${(s.count / maxTopCount) * 100}%` }}
+                    />
+                  </span>
+                  <span className={styles.analysisCount}>{s.count}회</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.analysisGroup}>
+            <span className={styles.analysisGroupTitle}>번호 구간 분포</span>
+            <div className={styles.analysisList}>
+              {rangeTotals.map((r) => (
+                <div key={r.label} className={styles.analysisRow}>
+                  <span className={styles.analysisRangeLabel}>{r.label}</span>
+                  <span className={styles.analysisBarTrack}>
+                    <span
+                      className={styles.analysisBarFill}
+                      style={{ width: `${(r.total / maxRangeTotal) * 100}%` }}
+                    />
+                  </span>
+                  <span className={styles.analysisCount}>{r.total}회</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
