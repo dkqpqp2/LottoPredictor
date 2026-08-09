@@ -19,13 +19,13 @@ export default function OpengraphImage() {
       >
         <div
           style={{
-            fontSize: 140,
+            fontSize: 100,
             fontWeight: 800,
             color: "#ff8f4d",
-            letterSpacing: -4,
+            letterSpacing: -3,
           }}
         >
-          로타로
+          연금복권720+
         </div>
         <div
           style={{
@@ -34,7 +34,7 @@ export default function OpengraphImage() {
             marginTop: 16,
           }}
         >
-          로또 통계 &amp; 타로 운세
+          조 1~5 · 6자리 번호 뽑기
         </div>
       </div>
     ),
