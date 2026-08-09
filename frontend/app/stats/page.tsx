@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import styles from "./stats.module.css";
 import { getDuplicateDraws, getStats, type DuplicateDrawGroup, type NumberStat } from "../../lib/api";
 import { getBallColor } from "../../lib/lottoBall";
+import { groupByRange } from "../../lib/numberRangeGroups";
 
 type SortOrder = "number" | "count";
 
@@ -42,19 +43,7 @@ export default function StatsPage() {
     return [...stats].sort((a, b) => a.number - b.number);
   }, [stats, sortOrder]);
 
-  const rangeGroups = useMemo(() => {
-    if (!stats) return [];
-    const byNumber = [...stats].sort((a, b) => a.number - b.number);
-    const groups: { label: string; items: NumberStat[] }[] = [];
-    for (let start = 1; start <= 41; start += 10) {
-      const end = Math.min(start + 9, 45);
-      groups.push({
-        label: `${start}-${end}`,
-        items: byNumber.filter((s) => s.number >= start && s.number <= end),
-      });
-    }
-    return groups;
-  }, [stats]);
+  const rangeGroups = useMemo(() => (stats ? groupByRange(stats) : []), [stats]);
 
   return (
     <div className={styles.page}>
