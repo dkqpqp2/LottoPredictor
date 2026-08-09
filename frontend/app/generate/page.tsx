@@ -117,15 +117,15 @@ export default function GeneratePage() {
   }
 
   const topStats = stats ? [...stats].sort((a, b) => b.count - a.count).slice(0, 8) : [];
-  const maxTopCount = topStats.length > 0 ? Math.max(...topStats.map((s) => s.count)) : 1;
+  const maxTopCount = topStats.length > 0 ? Math.max(1, ...topStats.map((s) => s.count)) : 1;
 
   const rangeTotals = stats
     ? groupByRange(stats).map((g) => ({
         label: g.label,
-        total: g.items.reduce((sum, s) => sum + s.count, 0),
+        total: g.items.length > 0 ? Math.round(g.items.reduce((sum, s) => sum + s.count, 0) / g.items.length) : 0,
       }))
     : [];
-  const maxRangeTotal = rangeTotals.length > 0 ? Math.max(...rangeTotals.map((r) => r.total)) : 1;
+  const maxRangeTotal = rangeTotals.length > 0 ? Math.max(1, ...rangeTotals.map((r) => r.total)) : 1;
 
   return (
     <div className={styles.page}>
@@ -229,7 +229,7 @@ export default function GeneratePage() {
                       style={{ width: `${(r.total / maxRangeTotal) * 100}%` }}
                     />
                   </span>
-                  <span className={styles.analysisCount}>{r.total}회</span>
+                  <span className={styles.analysisCount}>평균 {r.total}회</span>
                 </div>
               ))}
             </div>
