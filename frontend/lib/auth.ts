@@ -18,11 +18,19 @@ export interface KakaoLoginResult {
 }
 
 export async function loginWithKakaoCode(code: string, redirectUri: string): Promise<KakaoLoginResult> {
-  const res = await fetch(`${API_BASE_URL}/api/auth/kakao/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code, redirectUri }),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}/api/auth/kakao/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, redirectUri }),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
   if (!res.ok) {
     throw new Error("카카오 로그인에 실패했습니다.");
   }

@@ -20,13 +20,32 @@ export default function KakaoCallbackContent() {
       return;
     }
 
+    let settled = false;
+    const fallbackTimer = window.setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      setError("카카오 로그인 응답이 오래 걸리고 있어요. 다시 시도해주세요.");
+    }, 20000);
+
     const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI ?? "";
     loginWithKakaoCode(code, redirectUri)
       .then(({ token, nickname, isAdmin }) => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(fallbackTimer);
         login(token, nickname, isAdmin);
         router.replace("/");
       })
-      .catch(() => setError("카카오 로그인에 실패했습니다."));
+      .catch(() => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(fallbackTimer);
+        setError("카카오 로그인에 실패했습니다.");
+      });
+
+    return () => {
+      window.clearTimeout(fallbackTimer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
