@@ -11,6 +11,8 @@ import com.lottopredictor.backend.auth.KakaoOAuthClient;
 import com.lottopredictor.backend.auth.KakaoUserInfo;
 import com.lottopredictor.backend.auth.MeResponse;
 import com.lottopredictor.backend.auth.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class AuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final KakaoOAuthClient kakaoOAuthClient;
     private final AuthService authService;
@@ -47,6 +51,7 @@ public class AuthController {
             String jwt = jwtService.issue(user.getId(), user.getNickname());
             return ResponseEntity.ok(new KakaoLoginResponse(jwt, user.getNickname(), adminUserId.equals(user.getId())));
         } catch (KakaoAuthException e) {
+            log.warn("Kakao login failed: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
