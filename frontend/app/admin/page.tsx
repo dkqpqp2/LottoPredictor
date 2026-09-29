@@ -6,7 +6,7 @@ import { triggerCrawl, triggerPensionCrawl, type SyncResult } from "../../lib/ap
 import { getAdminUsers, setUserTier, resetUserUsage, type AdminUser } from "../../lib/admin";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
-import { getKakaoAuthorizeUrl } from "../../lib/auth";
+import KakaoLoginLink from "../components/KakaoLoginLink";
 
 const TIER_OPTIONS: { value: string; label: string }[] = [
   { value: "", label: "자동 (포인트 기준)" },
@@ -110,9 +110,7 @@ export default function AdminPage() {
           <h1 className={styles.title}>관리자 페이지</h1>
           <p className={styles.subtitle}>관리자 전용 기능입니다. 로그인이 필요해요.</p>
         </section>
-        <a href={getKakaoAuthorizeUrl()} className={styles.collectButton}>
-          카카오로 로그인
-        </a>
+        <KakaoLoginLink className={styles.collectButton}>카카오로 로그인</KakaoLoginLink>
       </div>
     );
   }

@@ -11,6 +11,10 @@ export function getKakaoAuthorizeUrl(): string {
   return `https://kauth.kakao.com/oauth/authorize?${params.toString()}`;
 }
 
+export function warmBackend(): void {
+  fetch(`${API_BASE_URL}/api/health`, { keepalive: true }).catch(() => {});
+}
+
 export interface KakaoLoginResult {
   token: string;
   nickname: string;
@@ -19,7 +23,7 @@ export interface KakaoLoginResult {
 
 export async function loginWithKakaoCode(code: string, redirectUri: string): Promise<KakaoLoginResult> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  const timeoutId = setTimeout(() => controller.abort(), 150000);
   let res: Response;
   try {
     res = await fetch(`${API_BASE_URL}/api/auth/kakao/login`, {

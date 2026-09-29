@@ -18,7 +18,7 @@ import {
   type TarotCardInput,
   type TarotInterpretationMode,
 } from "../../lib/tarotInterpretation";
-import { getKakaoAuthorizeUrl } from "../../lib/auth";
+import KakaoLoginLink from "../components/KakaoLoginLink";
 import { saveNumbers } from "../../lib/savedNumbers";
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -359,9 +359,7 @@ export default function Home() {
         </section>
         <div className={styles.card}>
           <p className={styles.hint}>타로를 보려면 로그인이 필요해요.</p>
-          <a href={getKakaoAuthorizeUrl()} className={styles.generateButton}>
-            카카오로 로그인
-          </a>
+          <KakaoLoginLink className={styles.generateButton}>카카오로 로그인</KakaoLoginLink>
         </div>
       </div>
     );

@@ -8,7 +8,7 @@ import { getBallColor } from "../../lib/lottoBall";
 import { getTarotInterpretationHistory, type TarotInterpretationResult } from "../../lib/tarotInterpretation";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
-import { getKakaoAuthorizeUrl } from "../../lib/auth";
+import KakaoLoginLink from "../components/KakaoLoginLink";
 
 const SOURCE_LABELS: Record<SavedNumberResult["source"], string> = {
   GENERATE: "번호생성",
@@ -87,9 +87,7 @@ export default function MyPage() {
         </section>
         <div className={styles.card}>
           <p className={styles.error}>마이페이지를 이용하려면 로그인이 필요해요.</p>
-          <a href={getKakaoAuthorizeUrl()} className={styles.loginButton}>
-            카카오로 로그인
-          </a>
+          <KakaoLoginLink className={styles.loginButton}>카카오로 로그인</KakaoLoginLink>
         </div>
       </div>
     );

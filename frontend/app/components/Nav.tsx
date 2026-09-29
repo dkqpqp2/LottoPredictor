@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./Nav.module.css";
 import { useAuth } from "../contexts/AuthContext";
-import { getKakaoAuthorizeUrl } from "../../lib/auth";
+import KakaoLoginLink from "./KakaoLoginLink";
 
 const LINKS = [
   { href: "/", label: "홈" },
@@ -68,9 +68,7 @@ export default function Nav() {
             </button>
           </div>
         ) : (
-          <a href={getKakaoAuthorizeUrl()} className={styles.loginLink}>
-            로그인
-          </a>
+          <KakaoLoginLink className={styles.loginLink}>로그인</KakaoLoginLink>
         )}
       </div>
     </nav>

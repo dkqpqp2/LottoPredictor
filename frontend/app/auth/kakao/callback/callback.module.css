@@ -13,6 +13,11 @@
   color: var(--text-secondary);
 }
 
+.hint {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
 .homeLink {
   color: var(--accent);
   font-weight: 600;

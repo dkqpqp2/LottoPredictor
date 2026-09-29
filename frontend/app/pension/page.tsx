@@ -14,7 +14,7 @@ import {
 import PensionDrawAnimation from "../components/PensionDrawAnimation";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
-import { getKakaoAuthorizeUrl } from "../../lib/auth";
+import KakaoLoginLink from "../components/KakaoLoginLink";
 
 export default function PensionPage() {
   const { auth } = useAuth();
@@ -126,9 +126,7 @@ export default function PensionPage() {
       {!auth ? (
         <div className={styles.card}>
           <p className={styles.error}>연금복권 번호를 뽑으려면 로그인이 필요해요.</p>
-          <a href={getKakaoAuthorizeUrl()} className={styles.generateButton}>
-            카카오로 로그인
-          </a>
+          <KakaoLoginLink className={styles.generateButton}>카카오로 로그인</KakaoLoginLink>
         </div>
       ) : (
         <div className={styles.card}>

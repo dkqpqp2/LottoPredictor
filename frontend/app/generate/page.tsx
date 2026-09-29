@@ -20,7 +20,7 @@ import LottoDrawAnimation from "../components/LottoDrawAnimation";
 import { useAuth } from "../contexts/AuthContext";
 import { useProgress } from "../contexts/ProgressContext";
 import { formatRemainingUsage } from "../../lib/progress";
-import { getKakaoAuthorizeUrl } from "../../lib/auth";
+import KakaoLoginLink from "../components/KakaoLoginLink";
 import { saveNumbers } from "../../lib/savedNumbers";
 
 export default function GeneratePage() {
@@ -325,9 +325,7 @@ export default function GeneratePage() {
       ) : (
         <div className={styles.card}>
           <p className={styles.error}>번호 생성을 이용하려면 로그인이 필요해요.</p>
-          <a href={getKakaoAuthorizeUrl()} className={styles.generateButton}>
-            카카오로 로그인
-          </a>
+          <KakaoLoginLink className={styles.generateButton}>카카오로 로그인</KakaoLoginLink>
         </div>
       )}
 
